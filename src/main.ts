@@ -16,7 +16,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(express.json({ limit: "20mb" }));
   app.use(express.urlencoded({ limit: "20mb", extended: true }));
-
+  const PORT = Number(process.env.PORT) || 3000;
   await app.listen(3000);
 }
 bootstrap();
