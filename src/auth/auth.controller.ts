@@ -1,34 +1,61 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Body, Controller, Get, Post, Req, Res, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { AuthService } from "./auth.service";
+import { CreateWithPasswordDto } from "../users/dtos/create-with-password.dto";
+import { FileFieldsInterceptor } from "@nestjs/platform-express";
+import { Request, Response } from "express";
+import { CreateGoogleSigninDto } from "./dto/create-google-signin.dto";
+import { LoginDto } from "./dto/login.dto";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
-
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  constructor(private readonly authService: AuthService) {
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Post("signup-with-email")
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      {
+        name: "businessLogo",
+        maxCount: 1,
+      },
+      {
+        name: "passportPhoto",
+        maxCount: 1,
+      },
+    ]),
+  )
+  signUpWithEmail(
+    @Body() createAuthEmailDto: CreateWithPasswordDto,
+    @Res({ passthrough: true }) res: Response,
+    @UploadedFiles()
+      files: {
+      businessLogo?: Express.Multer.File[];
+      passportPhoto?: Express.Multer.File[];
+    },
+  ) {
+    return this.authService.signUpWithEmail(createAuthEmailDto, files, res);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Post("signin-with-google")
+  signinWithGoogle(
+    @Body() createGoogleSigninDto: CreateGoogleSigninDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.signinWithGoogle(createGoogleSigninDto, res);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
+  @Post("login")
+  login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
+    return this.authService.loginWithEmail(loginDto, res);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Get("refresh-token")
+  refreshToken(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    return this.authService.refreshToken(req, res);
+  }
+
+  @Get("validate-access-token")
+  validateAccessToken(@Req() req: Request) {
+    return this.authService.validateAccessToken(req);
   }
 }

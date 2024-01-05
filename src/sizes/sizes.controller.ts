@@ -1,34 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { SizesService } from './sizes.service';
-import { CreateSizeDto } from './dto/create-size.dto';
-import { UpdateSizeDto } from './dto/update-size.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
+import { SizesService } from "./sizes.service";
+import { CreateSizeDto } from "./dto/create-size.dto";
+import { AuthGuard } from "../auth/auth.guard";
+import { QueryParamDto } from "./dto/query-param.dto";
 
-@Controller('sizes')
+@Controller("sizes")
 export class SizesController {
   constructor(private readonly sizesService: SizesService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createSizeDto: CreateSizeDto) {
     return this.sizesService.create(createSizeDto);
   }
 
   @Get()
-  findAll() {
-    return this.sizesService.findAll();
+  findAll(@Query() queryParamsDto: QueryParamDto) {
+    return this.sizesService.findAll(+queryParamsDto.retailerId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  findOne(@Param("id") id: string) {
     return this.sizesService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSizeDto: UpdateSizeDto) {
-    return this.sizesService.update(+id, updateSizeDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @UseGuards(AuthGuard)
+  @Delete(":id")
+  remove(@Param("id") id: string) {
     return this.sizesService.remove(+id);
   }
 }

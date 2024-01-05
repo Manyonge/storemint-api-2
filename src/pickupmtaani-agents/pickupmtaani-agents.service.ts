@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePickupmtaaniAgentDto } from './dto/create-pickupmtaani-agent.dto';
-import { UpdatePickupmtaaniAgentDto } from './dto/update-pickupmtaani-agent.dto';
+import { Injectable } from "@nestjs/common";
+import { CreatePickupmtaaniAgentDto } from "./dto/create-pickupmtaani-agent.dto";
+import { UpdatePickupmtaaniAgentDto } from "./dto/update-pickupmtaani-agent.dto";
+import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class PickupmtaaniAgentsService {
-  create(createPickupmtaaniAgentDto: CreatePickupmtaaniAgentDto) {
-    return 'This action adds a new pickupmtaaniAgent';
+  constructor(private prisma: PrismaService) {}
+  async create(createPickupmtaaniAgentDto: CreatePickupmtaaniAgentDto) {
+    return await this.prisma.pickupmtaaniAgent.create({
+      data: createPickupmtaaniAgentDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all pickupmtaaniAgents`;
+  async findAll(locationId: number) {
+    return await this.prisma.pickupmtaaniAgent.findMany({
+      where: {
+        locationId,
+      },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} pickupmtaaniAgent`;
+  async findOne(id: number) {
+    return await this.prisma.pickupmtaaniAgent.findUnique({ where: { id } });
   }
 
-  update(id: number, updatePickupmtaaniAgentDto: UpdatePickupmtaaniAgentDto) {
-    return `This action updates a #${id} pickupmtaaniAgent`;
+  async update(
+    id: number,
+    updatePickupmtaaniAgentDto: UpdatePickupmtaaniAgentDto,
+  ) {
+    return await this.prisma.pickupmtaaniAgent.update({
+      where: { id },
+      data: updatePickupmtaaniAgentDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} pickupmtaaniAgent`;
+  async remove(id: number) {
+    return await this.prisma.pickupmtaaniAgent.delete({ where: { id } });
   }
 }
