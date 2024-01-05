@@ -9,7 +9,15 @@ async function bootstrap() {
   dotenv.config();
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  app.enableCors({ credentials: true });
+  app.enableCors({
+    credentials: true,
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://dripventory.storemint.shop",
+      "https://storemint.shop",
+    ],
+  });
   app.use(cookieParser());
   app.use(express.json({ limit: "20mb" }));
   app.use(express.urlencoded({ limit: "20mb", extended: true }));
