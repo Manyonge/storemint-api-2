@@ -16,7 +16,9 @@ export class ImagesService {
       const fileName = `${timeStamp}-${randomId}-${originalName}.webp`;
       const filepath = `${folder}/${fileName}`;
       const file = bucket.file(filepath);
-      const optimizedImage = sharp(image.buffer).webp();
+      const optimizedImage = sharp(image.buffer)
+        .resize(800, 800)
+        .webp({ effort: 3 });
       await file.save(optimizedImage);
       await file.makePublic();
       return { publicUrl: file.publicUrl(), filepath };
