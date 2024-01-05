@@ -1,0 +1,12 @@
+-- CreateTable
+CREATE TABLE `User` (
+    `uid` INTEGER NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(191) NOT NULL,
+    `phoneNumber` VARCHAR(191) NOT NULL,
+    `hash` VARCHAR(191) NOT NULL,
+    `role` ENUM('STORE_ADMIN') NOT NULL,
+    `provider` ENUM('GOOGLE', 'EMAIL') NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`uid`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
