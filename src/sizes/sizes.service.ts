@@ -25,7 +25,7 @@ export class SizesService {
 
   async findAll(retailerId: number) {
     return await this.prisma.size.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { size: "desc" },
       where: { retailerId },
     });
   }

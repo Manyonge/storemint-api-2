@@ -30,7 +30,7 @@ export class CategoriesService {
   async findAll(retailerId: number) {
     return await this.prisma.category.findMany({
       where: { retailerId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { category: "asc" },
     });
   }
 
