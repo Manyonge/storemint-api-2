@@ -5,20 +5,20 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { CreateWithPasswordDto } from "../users/dtos/create-with-password.dto";
-import { UsersService } from "../users/users.service";
-import { RetailersService } from "../retailers/retailers.service";
-import { EwalletsService } from "../ewallets/ewallets.service";
 import { JwtService } from "@nestjs/jwt";
-import { TokenEntity } from "./entities/token.entity";
-import { Request, Response } from "express";
-import { CreateGoogleSigninDto } from "./dto/create-google-signin.dto";
-import { OAuth2Client } from "google-auth-library";
 import * as dotenv from "dotenv";
-import * as process from "process";
-import { CreateWithoutPasswordDto } from "../users/dtos/create-without-password.dto";
-import { LoginDto } from "./dto/login.dto";
+import { Request, Response } from "express";
+import { OAuth2Client } from "google-auth-library";
 import { PrismaService } from "nestjs-prisma";
+import * as process from "process";
+import { EwalletsService } from "../ewallets/ewallets.service";
+import { RetailersService } from "../retailers/retailers.service";
+import { CreateWithPasswordDto } from "../users/dtos/create-with-password.dto";
+import { CreateWithoutPasswordDto } from "../users/dtos/create-without-password.dto";
+import { UsersService } from "../users/users.service";
+import { CreateGoogleSigninDto } from "./dto/create-google-signin.dto";
+import { LoginDto } from "./dto/login.dto";
+import { TokenEntity } from "./entities/token.entity";
 
 dotenv.config();
 
@@ -114,7 +114,7 @@ export class AuthService {
     const timestamp = currentDate.getTime();
     const iat = Math.floor(timestamp / 1000);
     const date = new Date(timestamp);
-    date.setHours(date.getHours() + 1);
+    date.setDate(date.getDate() + 7);
     const newTimestamp = date.getTime();
     const exp = Math.floor(newTimestamp / 1000);
     const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "7d" };
@@ -126,7 +126,7 @@ export class AuthService {
     const timestamp = currentDate.getTime();
     const iat = Math.floor(timestamp / 1000);
     const date = new Date(timestamp);
-    date.setMonth(date.getMonth() + 6);
+    date.setDate(date.getDate() + 7);
     const newTimestamp = date.getTime();
     const exp = Math.floor(newTimestamp / 1000);
     const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "180d" };
