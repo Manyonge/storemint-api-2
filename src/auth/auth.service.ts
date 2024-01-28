@@ -117,7 +117,7 @@ export class AuthService {
     date.setHours(date.getHours() + 1);
     const newTimestamp = date.getTime();
     const exp = Math.floor(newTimestamp / 1000);
-    const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1h" };
+    const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "7d" };
     return await this.jwtService.signAsync(payload);
   }
 
