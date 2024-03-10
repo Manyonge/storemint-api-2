@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch } from "@nestjs/common";
 import { EwalletsService } from "./ewallets.service";
 import { UpdateEwalletDto } from "./dto/update-ewallet.dto";
 
-@Controller("ewallets")
+@Controller("api/ewallets")
 export class EwalletsController {
   constructor(private readonly ewalletsService: EwalletsService) {}
 

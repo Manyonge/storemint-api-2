@@ -18,7 +18,7 @@ import { Express, Request } from "express";
 import { CreateRetailerDto } from "./dto/create-retailer.dto";
 import { AuthGuard } from "../auth/auth.guard";
 
-@Controller("retailers")
+@Controller("api/retailers")
 export class RetailersController {
   constructor(private readonly retailersService: RetailersService) {}
   @UseGuards(AuthGuard)

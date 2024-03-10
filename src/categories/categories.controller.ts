@@ -13,7 +13,7 @@ import { CreateCategoryDto } from "./dto/create-category.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
-@Controller("categories")
+@Controller("api/categories")
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 

@@ -13,7 +13,7 @@ import { CreatePickupmtaaniLocationDto } from "./dto/create-pickupmtaani-locatio
 import { UpdatePickupmtaaniLocationDto } from "./dto/update-pickupmtaani-location.dto";
 import { AuthGuard } from "../auth/auth.guard";
 
-@Controller("pickupmtaani-locations")
+@Controller("api/pickupmtaani-locations")
 export class PickupmtaaniLocationsController {
   constructor(
     private readonly pickupmtaaniLocationsService: PickupmtaaniLocationsService,

@@ -13,7 +13,7 @@ import { CreateSizeDto } from "./dto/create-size.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
-@Controller("sizes")
+@Controller("api/sizes")
 export class SizesController {
   constructor(private readonly sizesService: SizesService) {}
 
