@@ -15,7 +15,7 @@ import { UpdateCustomerDto } from "./dto/update-customer.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
-@Controller("api/customers")
+@Controller("customers")
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 

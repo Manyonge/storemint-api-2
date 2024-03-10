@@ -15,7 +15,7 @@ import { UpdatePickupmtaaniAgentDto } from "./dto/update-pickupmtaani-agent.dto"
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
-@Controller("api/pickupmtaani-agents")
+@Controller("pickupmtaani-agents")
 export class PickupmtaaniAgentsController {
   constructor(
     private readonly pickupmtaaniAgentsService: PickupmtaaniAgentsService,

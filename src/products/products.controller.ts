@@ -23,7 +23,7 @@ import { UploadedFilesDto } from "./dto/uploaded-files.dto";
 import { CreateImageParamDto } from "./dto/create-image-param.dto";
 import { Request } from "express";
 
-@Controller("api/products")
+@Controller("products")
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 

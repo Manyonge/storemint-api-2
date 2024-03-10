@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 import { CreateGoogleSigninDto } from "./dto/create-google-signin.dto";
 import { LoginDto } from "./dto/login.dto";
 
-@Controller("api/auth")
+@Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {
   }

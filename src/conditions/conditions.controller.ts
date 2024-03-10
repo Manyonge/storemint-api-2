@@ -13,7 +13,7 @@ import { CreateConditionDto } from "./dto/create-condition.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
-@Controller("api/conditions")
+@Controller("conditions")
 export class ConditionsController {
   constructor(private readonly conditionsService: ConditionsService) {}
 
