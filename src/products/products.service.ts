@@ -19,6 +19,7 @@ export class ProductsService {
     private readonly retailersService: RetailersService,
   ) {}
   async create(createProductDto: CreateProductDto) {
+    console.log({ createProductDto });
     return await this.prisma.storeProduct.create({
       data: createProductDto as any,
     });
