@@ -137,13 +137,13 @@ export class AuthService {
   }
 
   async findRefreshToken(token: string) {
-    return this.prisma.refreshToken.findFirst({ where: { token } });
+    return await this.prisma.refreshToken.findFirst({ where: { token } });
   }
 
   async deleteRefreshToken(oldToken: string) {
     const token = await this.findRefreshToken(oldToken);
     if (token) {
-      return this.prisma.refreshToken.delete({ where: { id: token.id } });
+      return await this.prisma.refreshToken.delete({ where: { id: token.id } });
     }
     return null;
   }

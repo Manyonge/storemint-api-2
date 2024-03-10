@@ -19,53 +19,53 @@ export class ProductsService {
     private readonly retailersService: RetailersService,
   ) {}
   async create(createProductDto: CreateProductDto) {
-    return this.prisma.storeProduct.create({
+    return await this.prisma.storeProduct.create({
       data: createProductDto as any,
     });
   }
 
   async findAll(retailerId: number, request: Request) {
     if (request.query.inStock && +request.query.inStock === 1) {
-      return this.prisma.storeProduct.findMany({
+      return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
         where: { retailerId, stock: { gt: 0 } },
       });
     }
     if (request.query.inStock && +request.query.inStock === 0) {
-      return this.prisma.storeProduct.findMany({
+      return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
         where: { retailerId, stock: 0 },
       });
     }
 
     if (request.query.isHidden && +request.query.isHidden === 1) {
-      return this.prisma.storeProduct.findMany({
+      return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
         where: { retailerId, isHidden: true },
       });
     }
 
     if (request.query.category) {
-      return this.prisma.storeProduct.findMany({
+      return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
         where: { retailerId, category: request.query.category as string },
       });
     }
 
     if (request.query.size) {
-      return this.prisma.storeProduct.findMany({
+      return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
         where: { retailerId, size: request.query.size as string },
       });
     }
 
     if (request.query.condition) {
-      return this.prisma.storeProduct.findMany({
+      return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
         where: { retailerId, condition: request.query.condition as string },
       });
     } else {
-      return this.prisma.storeProduct.findMany({
+      return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
         where: { retailerId },
       });
