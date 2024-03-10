@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { UsersModule } from "./users/users.module";
@@ -16,8 +16,9 @@ import { PickupmtaaniAgentsModule } from "./pickupmtaani-agents/pickupmtaani-age
 import { PrismaModule } from "nestjs-prisma";
 import { APP_PIPE } from "@nestjs/core";
 import { CheckRetailerPipe } from "./shared/check-retailer.pipe";
-import { OrdersModule } from './orders/orders.module';
-import { PaymentsModule } from './payments/payments.module';
+import { OrdersModule } from "./orders/orders.module";
+import { PaymentsModule } from "./payments/payments.module";
+import { LoggingMiddleware } from "./middleware/logging.middleware";
 
 @Module({
   imports: [
@@ -48,4 +49,8 @@ import { PaymentsModule } from './payments/payments.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleware).forRoutes("*");
+  }
+}
