@@ -14,6 +14,7 @@ async function bootstrap() {
     credentials: true,
     origin: [
       "http://localhost:5173",
+      "http://localhost:6000",
       "http://localhost:5174",
       "https://dripventory.storemint.shop",
       "https://storemint.shop",
