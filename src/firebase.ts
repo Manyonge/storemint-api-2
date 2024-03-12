@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin";
 import { Bucket } from "@google-cloud/storage";
-
+import * as dotenv from "dotenv";
+dotenv.config();
 const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
 admin.initializeApp({
   credential: admin.credential.cert(
