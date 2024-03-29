@@ -1,17 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { PickupmtaaniAgentsService } from "./pickupmtaani-agents.service";
-import { CreatePickupmtaaniAgentDto } from "./dto/create-pickupmtaani-agent.dto";
-import { UpdatePickupmtaaniAgentDto } from "./dto/update-pickupmtaani-agent.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
@@ -22,7 +10,7 @@ export class PickupmtaaniAgentsController {
   ) {}
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createPickupmtaaniAgentDto: CreatePickupmtaaniAgentDto) {
+  create(@Body() createPickupmtaaniAgentDto: any) {
     return this.pickupmtaaniAgentsService.create(createPickupmtaaniAgentDto);
   }
 
@@ -40,7 +28,7 @@ export class PickupmtaaniAgentsController {
   @Patch(":id")
   update(
     @Param("id") id: string,
-    @Body() updatePickupmtaaniAgentDto: UpdatePickupmtaaniAgentDto,
+    @Body() updatePickupmtaaniAgentDto: any,
   ) {
     return this.pickupmtaaniAgentsService.update(
       +id,

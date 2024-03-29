@@ -1,10 +1,7 @@
 import { Body, Controller, Get, Post, Req, Res, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { CreateWithPasswordDto } from "../users/dtos/create-with-password.dto";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
-import { CreateGoogleSigninDto } from "./dto/create-google-signin.dto";
-import { LoginDto } from "./dto/login.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -25,7 +22,7 @@ export class AuthController {
     ]),
   )
   signUpWithEmail(
-    @Body() createAuthEmailDto: CreateWithPasswordDto,
+    @Body() createAuthEmailDto: any,
     @Res({ passthrough: true }) res: Response,
     @UploadedFiles()
       files: {
@@ -38,14 +35,14 @@ export class AuthController {
 
   @Post("signin-with-google")
   signinWithGoogle(
-    @Body() createGoogleSigninDto: CreateGoogleSigninDto,
+    @Body() createGoogleSigninDto: any,
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.signinWithGoogle(createGoogleSigninDto, res);
   }
 
   @Post("login")
-  login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  login(@Body() loginDto: any, @Res({ passthrough: true }) res: Response) {
     return this.authService.loginWithEmail(loginDto, res);
   }
 

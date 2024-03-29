@@ -9,13 +9,11 @@ import {
   Req,
   UploadedFiles,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from "@nestjs/common";
 import { RetailersService } from "./retailers.service";
-import { UpdateRetailerDto } from "./dto/update-retailer.dto";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { Express, Request } from "express";
-import { CreateRetailerDto } from "./dto/create-retailer.dto";
 import { AuthGuard } from "../auth/auth.guard";
 
 @Controller("retailers")
@@ -36,7 +34,7 @@ export class RetailersController {
     ]),
   )
   create(
-    @Body() createRetailerDto: CreateRetailerDto,
+    @Body() createRetailerDto: any,
     @UploadedFiles()
     files: {
       businessLogo?: Express.Multer.File[];
@@ -59,7 +57,7 @@ export class RetailersController {
   @Patch(":id")
   update(
     @Param("id") id: string,
-    @Body() updateRetailerDto: UpdateRetailerDto,
+    @Body() updateRetailerDto: any,
   ) {
     return this.retailersService.update(+id, updateRetailerDto);
   }

@@ -1,16 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import { PickupmtaaniLocationsService } from "./pickupmtaani-locations.service";
-import { CreatePickupmtaaniLocationDto } from "./dto/create-pickupmtaani-location.dto";
-import { UpdatePickupmtaaniLocationDto } from "./dto/update-pickupmtaani-location.dto";
 import { AuthGuard } from "../auth/auth.guard";
 
 @Controller("pickupmtaani-locations")
@@ -20,7 +9,7 @@ export class PickupmtaaniLocationsController {
   ) {}
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createPickupmtaaniLocationDto: CreatePickupmtaaniLocationDto) {
+  create(@Body() createPickupmtaaniLocationDto: any) {
     return this.pickupmtaaniLocationsService.create(
       createPickupmtaaniLocationDto,
     );
@@ -40,7 +29,7 @@ export class PickupmtaaniLocationsController {
   @Patch(":id")
   update(
     @Param("id") id: string,
-    @Body() updatePickupmtaaniLocationDto: UpdatePickupmtaaniLocationDto,
+    @Body() updatePickupmtaaniLocationDto: any,
   ) {
     return this.pickupmtaaniLocationsService.update(
       +id,

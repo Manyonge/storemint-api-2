@@ -1,15 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
 import { SizesService } from "./sizes.service";
-import { CreateSizeDto } from "./dto/create-size.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
@@ -19,7 +9,7 @@ export class SizesController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createSizeDto: CreateSizeDto) {
+  create(@Body() createSizeDto: any) {
     return this.sizesService.create(createSizeDto);
   }
 

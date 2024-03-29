@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch } from "@nestjs/common";
 import { EwalletsService } from "./ewallets.service";
-import { UpdateEwalletDto } from "./dto/update-ewallet.dto";
 
 @Controller("ewallets")
 export class EwalletsController {
@@ -17,7 +16,7 @@ export class EwalletsController {
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateEwalletDto: UpdateEwalletDto) {
+  update(@Param("id") id: string, @Body() updateEwalletDto: any) {
     return this.ewalletsService.update(+id, updateEwalletDto);
   }
 

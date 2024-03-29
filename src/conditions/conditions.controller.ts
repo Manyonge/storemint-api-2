@@ -1,15 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
 import { ConditionsService } from "./conditions.service";
-import { CreateConditionDto } from "./dto/create-condition.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
@@ -19,7 +9,7 @@ export class ConditionsController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createConditionDto: CreateConditionDto) {
+  create(@Body() createConditionDto: any) {
     return this.conditionsService.create(createConditionDto);
   }
 

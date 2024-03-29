@@ -1,17 +1,5 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { CustomersService } from "./customers.service";
-import { CreateCustomerDto } from "./dto/create-customer.dto";
-import { UpdateCustomerDto } from "./dto/update-customer.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 
@@ -21,7 +9,7 @@ export class CustomersController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createCustomerDto: CreateCustomerDto) {
+  create(@Body() createCustomerDto: any) {
     return this.customersService.create(createCustomerDto);
   }
 
@@ -39,7 +27,7 @@ export class CustomersController {
   @Patch(":id")
   update(
     @Param("id") id: string,
-    @Body() updateCustomerDto: UpdateCustomerDto,
+    @Body() updateCustomerDto: any,
   ) {
     return this.customersService.update(+id, updateCustomerDto);
   }
