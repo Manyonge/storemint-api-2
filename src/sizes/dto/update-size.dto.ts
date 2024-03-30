@@ -1,7 +1,4 @@
-import { PickType } from "@nestjs/mapped-types";
-import { Size } from "../entities/size.entity";
+import { PartialType } from "@nestjs/mapped-types";
+import { CreateSizeDto } from "./create-size.dto";
 
-export class UpdateSizeDto extends PickType(Size, [
-  "size",
-  "retailerId",
-] as const) {}
+export class UpdateSizeDto extends PartialType(CreateSizeDto) {}

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateSizeDto } from "./dto/create-size.dto";
 import { RetailersService } from "../retailers/retailers.service";
 import { PrismaService } from "nestjs-prisma";
@@ -10,38 +10,63 @@ export class SizesService {
     private readonly retailersService: RetailersService,
   ) {}
   async create(createSizeDto: CreateSizeDto) {
-    const isSizeExistent = await this.isSizeExistent(
-      createSizeDto.size,
-      createSizeDto.retailerId,
-    );
-    if (isSizeExistent) {
-      throw new HttpException("Size already exists", HttpStatus.BAD_REQUEST);
-    }
+    try {
+      const isSizeExistent = await this.isSizeExistent(
+        createSizeDto.size,
+        createSizeDto.retailerId,
+      );
+      if (isSizeExistent) {
+        return new BadRequestException("size already exists");
+      }
 
-    return await this.prisma.size.create({
-      data: createSizeDto,
-    });
+      return await this.prisma.size.create({
+        data: createSizeDto,
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async findAll(retailerId: number) {
-    return await this.prisma.size.findMany({
-      orderBy: { size: "desc" },
-      where: { retailerId },
-    });
+    try {
+      return await this.prisma.size.findMany({
+        orderBy: { size: "desc" },
+        where: { retailerId },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async findOne(id: number) {
-    return await this.prisma.size.findUnique({ where: { id } });
+    try {
+      return await this.prisma.size.findUnique({ where: { id } });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async remove(id: number) {
-    return await this.prisma.size.delete({ where: { id } });
+    try {
+      return await this.prisma.size.delete({ where: { id } });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async isSizeExistent(size: string, retailerId: number) {
-    const foundSize = await this.prisma.size.findUnique({
-      where: { size, retailerId },
-    });
-    return !!foundSize;
+    try {
+      const foundSize = await this.prisma.size.findUnique({
+        where: { size, retailerId },
+      });
+      return !!foundSize;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
   }
 }
