@@ -1,16 +1,16 @@
-import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from "@nestjs/common";
+import { BadRequestException, Injectable, PipeTransform } from "@nestjs/common";
 import { PrismaService } from "nestjs-prisma";
-import { isStringWholeNumber } from "../helpers";
+import { isWholeNumber } from "../helpers";
 
 @Injectable()
 export class CheckRetailerPipe implements PipeTransform {
   constructor(private readonly prisma: PrismaService) {}
 
-  async transform(value: any, metadata: ArgumentMetadata) {
+  async transform(value: any) {
     try {
       if (!!value?.retailerId) {
         const retailerId = value.retailerId;
-        if (!isStringWholeNumber(retailerId)) {
+        if (!isWholeNumber(retailerId)) {
           throw new BadRequestException(
             "retailerId must be a whole number greater than 0",
           );

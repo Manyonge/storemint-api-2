@@ -1,9 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { ConditionsService } from "./conditions.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-param.dto";
 import { CreateConditionDto } from "./dto/create-condition.dto";
-import { CheckParamIdPipe } from "../pipes/check-param-id.pipe.";
+import { CheckIdParamPipe } from "../pipes/check-id-param-pipe.service";
 
 @Controller("conditions")
 export class ConditionsController {
@@ -21,13 +30,13 @@ export class ConditionsController {
   }
 
   @Get(":id")
-  findOne(@Param("id", new CheckParamIdPipe()) id: string) {
+  findOne(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.conditionsService.findOne(+id);
   }
 
   @UseGuards(AuthGuard)
   @Delete(":id")
-  remove(@Param("id", new CheckParamIdPipe()) id: string) {
+  remove(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.conditionsService.remove(+id);
   }
 }

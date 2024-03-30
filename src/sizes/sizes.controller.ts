@@ -1,9 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { SizesService } from "./sizes.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { GetAllSizesParam } from "./dto/get-all-sizes.param";
 import { CreateSizeDto } from "./dto/create-size.dto";
-import { CheckParamIdPipe } from "../pipes/check-param-id.pipe.";
+import { CheckIdParamPipe } from "../pipes/check-id-param-pipe.service";
 
 @Controller("sizes")
 export class SizesController {
@@ -21,13 +30,13 @@ export class SizesController {
   }
 
   @Get(":id")
-  findOne(@Param("id", new CheckParamIdPipe()) id: string) {
+  findOne(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.sizesService.findOne(+id);
   }
 
   @UseGuards(AuthGuard)
   @Delete(":id")
-  remove(@Param("id", new CheckParamIdPipe()) id: string) {
+  remove(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.sizesService.remove(+id);
   }
 }

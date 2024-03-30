@@ -1,7 +1,8 @@
-import { IsInt, IsNotEmpty } from "class-validator";
+import { IsInt, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateConditionDto {
   @IsNotEmpty()
+  @IsString()
   condition: string;
   @IsNotEmpty()
   @IsInt()

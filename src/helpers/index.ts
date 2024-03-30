@@ -1,1 +1,1 @@
-export { isStringWholeNumber } from "./isStringWholeNumber";
+export { isWholeNumber } from "./isWholeNumber";

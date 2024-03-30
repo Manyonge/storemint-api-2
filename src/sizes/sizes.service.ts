@@ -1,14 +1,10 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateSizeDto } from "./dto/create-size.dto";
-import { RetailersService } from "../retailers/retailers.service";
 import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class SizesService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly retailersService: RetailersService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
   async create(createSizeDto: CreateSizeDto) {
     try {
       const sizeExists = await this.isSizeExistent(
@@ -50,6 +46,12 @@ export class SizesService {
   }
 
   async remove(id: number) {
+    const size = await this.prisma.size.findUnique({
+      where: { id },
+    });
+    if (!size) {
+      throw new BadRequestException("size not found");
+    }
     try {
       return await this.prisma.size.delete({ where: { id } });
     } catch (e) {

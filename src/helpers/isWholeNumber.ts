@@ -1,4 +1,4 @@
-export const isStringWholeNumber = (value: any) => {
+export const isWholeNumber = (value: any) => {
   const isNumber = typeof Number(value) === "number" && !isNaN(Number(value));
   const isGreaterThan0 = Number(value) > 0;
   const isWholeNumber = Number.isInteger(value) || Number(value) % 1 === 0;

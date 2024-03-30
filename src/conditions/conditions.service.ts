@@ -1,51 +1,75 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateConditionDto } from "./dto/create-condition.dto";
-import { RetailersService } from "../retailers/retailers.service";
 import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class ConditionsService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly retailersService: RetailersService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async create(createConditionDto: CreateConditionDto) {
-    const isConditionExistent = await this.isConditionExistent(
-      createConditionDto.condition,
-      createConditionDto.retailerId,
-    );
-    if (isConditionExistent) {
-      throw new HttpException(
-        "Condition already exists",
-        HttpStatus.BAD_REQUEST,
+    try {
+      const conditionExists = await this.isConditionExistent(
+        createConditionDto.condition,
+        createConditionDto.retailerId,
       );
-    }
+      if (conditionExists) {
+        throw new BadRequestException("Condition already exists");
+      }
 
-    return await this.prisma.condition.create({
-      data: createConditionDto,
-    });
+      return await this.prisma.condition.create({
+        data: createConditionDto,
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async findAll(retailerId: number) {
-    return await this.prisma.condition.findMany({
-      orderBy: { createdAt: "desc" },
-      where: { retailerId },
-    });
+    try {
+      return await this.prisma.condition.findMany({
+        orderBy: { createdAt: "desc" },
+        where: { retailerId },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async findOne(id: number) {
-    return await this.prisma.condition.findUnique({ where: { id } });
+    try {
+      return await this.prisma.condition.findUnique({ where: { id } });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async remove(id: number) {
-    return await this.prisma.condition.delete({ where: { id } });
+    const condition = await this.prisma.condition.findUnique({
+      where: { id },
+    });
+    if (!condition) {
+      throw new BadRequestException("condition not found");
+    }
+    try {
+      return await this.prisma.condition.delete({ where: { id } });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async isConditionExistent(condition: string, retailerId: number) {
-    const foundCondition = await this.prisma.condition.findUnique({
-      where: { condition, retailerId },
-    });
-    return !!foundCondition;
+    try {
+      const foundCondition = await this.prisma.condition.findUnique({
+        where: { condition, retailerId },
+      });
+      return !!foundCondition;
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
   }
 }
