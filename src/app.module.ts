@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { UsersModule } from "./users/users.module";
@@ -15,10 +15,10 @@ import { PickupmtaaniLocationsModule } from "./pickupmtaani-locations/pickupmtaa
 import { PickupmtaaniAgentsModule } from "./pickupmtaani-agents/pickupmtaani-agents.module";
 import { PrismaModule } from "nestjs-prisma";
 import { APP_PIPE } from "@nestjs/core";
-import { CheckRetailerPipe } from "./shared/check-retailer.pipe";
 import { OrdersModule } from "./orders/orders.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { LoggingMiddleware } from "./middleware/logging.middleware";
+import { AppPipe } from "./pipes/app.pipe";
 
 @Module({
   imports: [
@@ -45,7 +45,7 @@ import { LoggingMiddleware } from "./middleware/logging.middleware";
     AppService,
     {
       provide: APP_PIPE,
-      useClass: CheckRetailerPipe,
+      useClass: AppPipe,
     },
   ],
 })

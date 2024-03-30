@@ -1,0 +1,1 @@
+export { isWholeNumber } from "./isWholeNumber";
