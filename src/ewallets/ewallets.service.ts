@@ -1,15 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { CreateEwalletDto } from './dto/create-ewallet.dto';
-import { UpdateEwalletDto } from './dto/update-ewallet.dto';
+import { Injectable } from "@nestjs/common";
+import { UpdateEwalletDto } from "./dto/update-ewallet.dto";
+import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class EwalletsService {
-  create(createEwalletDto: CreateEwalletDto) {
-    return 'This action adds a new ewallet';
+  constructor(private prisma: PrismaService) {}
+  async create(retailerId: number) {
+    return await this.prisma.ewallet.create({
+      data: {
+        retailerId: retailerId,
+        balance: 0,
+      },
+    });
   }
 
   findAll() {
-    return `This action returns all ewallets`;
+    return " all ewallets";
   }
 
   findOne(id: number) {

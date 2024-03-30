@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateConditionDto } from './create-condition.dto';
+import { PartialType } from "@nestjs/mapped-types";
+import { Condition } from "../entities/condition.entity";
 
-export class UpdateConditionDto extends PartialType(CreateConditionDto) {}
+export class UpdateConditionDto extends PartialType(Condition) {}

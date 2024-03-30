@@ -1,26 +1,47 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSizeDto } from './dto/create-size.dto';
-import { UpdateSizeDto } from './dto/update-size.dto';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { CreateSizeDto } from "./dto/create-size.dto";
+import { RetailersService } from "../retailers/retailers.service";
+import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class SizesService {
-  create(createSizeDto: CreateSizeDto) {
-    return 'This action adds a new size';
+  constructor(
+    private prisma: PrismaService,
+    private readonly retailersService: RetailersService,
+  ) {}
+  async create(createSizeDto: CreateSizeDto) {
+    const isSizeExistent = await this.isSizeExistent(
+      createSizeDto.size,
+      createSizeDto.retailerId,
+    );
+    if (isSizeExistent) {
+      throw new HttpException("Size already exists", HttpStatus.BAD_REQUEST);
+    }
+
+    return await this.prisma.size.create({
+      data: createSizeDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all sizes`;
+  async findAll(retailerId: number) {
+    return await this.prisma.size.findMany({
+      orderBy: { size: "desc" },
+      where: { retailerId },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} size`;
+  async findOne(id: number) {
+    return await this.prisma.size.findUnique({ where: { id } });
   }
 
-  update(id: number, updateSizeDto: UpdateSizeDto) {
-    return `This action updates a #${id} size`;
+  async remove(id: number) {
+    return await this.prisma.size.delete({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} size`;
+  async isSizeExistent(size: string, retailerId: number) {
+    const foundSize = await this.prisma.size.findUnique({
+      where: { size, retailerId },
+    });
+    return !!foundSize;
   }
 }

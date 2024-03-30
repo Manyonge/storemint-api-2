@@ -1,26 +1,84 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable } from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import { ProviderEnum, RoleEnum } from "./enums";
+import { CreateWithPasswordDto } from "./dtos/create-with-password.dto";
+import { CreateWithoutPasswordDto } from "./dtos/create-without-password.dto";
+import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(private prisma: PrismaService) {}
+  async createWithPassword(createWithPasswordDto: CreateWithPasswordDto) {
+    const hashedPassword = await this.hashPassword(
+      createWithPasswordDto.password,
+    );
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: createWithPasswordDto.businessEmail,
+        phoneNumber: createWithPasswordDto.businessPhone,
+        name: createWithPasswordDto.ownerName,
+        hash: hashedPassword,
+        role: RoleEnum.STORE_ADMIN,
+        provider: ProviderEnum.EMAIL,
+      },
+    });
+    return user.uid;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async createWithoutPassword(
+    createWithoutPasswordDto: CreateWithoutPasswordDto,
+  ) {
+    const user = await this.prisma.user.create({
+      data: {
+        email: createWithoutPasswordDto.email,
+        name: createWithoutPasswordDto.ownerName,
+        role: RoleEnum.STORE_ADMIN,
+        provider: ProviderEnum.GOOGLE,
+      },
+    });
+    return user.uid;
+  }
+  async hashPassword(password: string) {
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async comparePasswords(plainTextPassword: string, hashedPassword: string) {
+    return bcrypt.compare(plainTextPassword, hashedPassword);
+  }
+  async isEmailExistent(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+    return !!user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findByEmailProvider(email: string): Promise<{
+    uid: number;
+    email: string;
+    phoneNumber: string;
+    name: string;
+    hash: string;
+    role: "STORE_ADMIN";
+  }> {
+    return await this.prisma.user.findUnique({
+      where: { email, provider: ProviderEnum.EMAIL },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async findByGoogleProvider(email: string): Promise<{
+    uid: number;
+    email: string;
+    phoneNumber: string;
+    name: string;
+    hash: string;
+    role: "STORE_ADMIN";
+  }> {
+    return await this.prisma.user.findUnique({
+      where: { email, provider: ProviderEnum.GOOGLE },
+    });
   }
 }

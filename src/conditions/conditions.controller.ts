@@ -1,34 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ConditionsService } from './conditions.service';
-import { CreateConditionDto } from './dto/create-condition.dto';
-import { UpdateConditionDto } from './dto/update-condition.dto';
+import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
+import { ConditionsService } from "./conditions.service";
+import { AuthGuard } from "../auth/auth.guard";
+import { QueryParamDto } from "./dto/query-param.dto";
 
-@Controller('conditions')
+@Controller("conditions")
 export class ConditionsController {
   constructor(private readonly conditionsService: ConditionsService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createConditionDto: CreateConditionDto) {
+  create(@Body() createConditionDto: any) {
     return this.conditionsService.create(createConditionDto);
   }
 
   @Get()
-  findAll() {
-    return this.conditionsService.findAll();
+  findAll(@Query() queryParamDto: QueryParamDto) {
+    return this.conditionsService.findAll(+queryParamDto.retailerId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  findOne(@Param("id") id: string) {
     return this.conditionsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateConditionDto: UpdateConditionDto) {
-    return this.conditionsService.update(+id, updateConditionDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @UseGuards(AuthGuard)
+  @Delete(":id")
+  remove(@Param("id") id: string) {
     return this.conditionsService.remove(+id);
   }
 }

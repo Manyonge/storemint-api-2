@@ -1,26 +1,51 @@
-import { Injectable } from '@nestjs/common';
-import { CreateConditionDto } from './dto/create-condition.dto';
-import { UpdateConditionDto } from './dto/update-condition.dto';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { CreateConditionDto } from "./dto/create-condition.dto";
+import { RetailersService } from "../retailers/retailers.service";
+import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class ConditionsService {
-  create(createConditionDto: CreateConditionDto) {
-    return 'This action adds a new condition';
+  constructor(
+    private prisma: PrismaService,
+    private readonly retailersService: RetailersService,
+  ) {}
+
+  async create(createConditionDto: CreateConditionDto) {
+    const isConditionExistent = await this.isConditionExistent(
+      createConditionDto.condition,
+      createConditionDto.retailerId,
+    );
+    if (isConditionExistent) {
+      throw new HttpException(
+        "Condition already exists",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return await this.prisma.condition.create({
+      data: createConditionDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all conditions`;
+  async findAll(retailerId: number) {
+    return await this.prisma.condition.findMany({
+      orderBy: { createdAt: "desc" },
+      where: { retailerId },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} condition`;
+  async findOne(id: number) {
+    return await this.prisma.condition.findUnique({ where: { id } });
   }
 
-  update(id: number, updateConditionDto: UpdateConditionDto) {
-    return `This action updates a #${id} condition`;
+  async remove(id: number) {
+    return await this.prisma.condition.delete({ where: { id } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} condition`;
+  async isConditionExistent(condition: string, retailerId: number) {
+    const foundCondition = await this.prisma.condition.findUnique({
+      where: { condition, retailerId },
+    });
+    return !!foundCondition;
   }
 }
