@@ -11,11 +11,11 @@ export class SizesService {
   ) {}
   async create(createSizeDto: CreateSizeDto) {
     try {
-      const isSizeExistent = await this.isSizeExistent(
+      const sizeExists = await this.isSizeExistent(
         createSizeDto.size,
         createSizeDto.retailerId,
       );
-      if (isSizeExistent) {
+      if (sizeExists) {
         return new BadRequestException("size already exists");
       }
 

@@ -3,6 +3,7 @@ import { SizesService } from "./sizes.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { GetAllSizesParam } from "./dto/get-all-sizes.param";
 import { CreateSizeDto } from "./dto/create-size.dto";
+import { CheckParamIdPipe } from "../pipes/check-param-id.pipe.";
 
 @Controller("sizes")
 export class SizesController {
@@ -19,14 +20,14 @@ export class SizesController {
     return this.sizesService.findAll(+queryParamsDto.retailerId);
   }
 
-  @Get(":sizeId")
-  findOne(@Param("sizeId") sizeId: number) {
-    return this.sizesService.findOne(+sizeId);
+  @Get(":id")
+  findOne(@Param("id", new CheckParamIdPipe()) id: number) {
+    return this.sizesService.findOne(+id);
   }
 
   @UseGuards(AuthGuard)
-  @Delete(":sizeId")
-  remove(@Param("sizeId") sizeId: number) {
-    return this.sizesService.remove(+sizeId);
+  @Delete(":id")
+  remove(@Param("id", new CheckParamIdPipe()) id: number) {
+    return this.sizesService.remove(+id);
   }
 }
