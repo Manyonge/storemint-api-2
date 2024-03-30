@@ -21,13 +21,13 @@ export class SizesController {
   }
 
   @Get(":id")
-  findOne(@Param("id", new CheckParamIdPipe()) id: number) {
+  findOne(@Param("id", new CheckParamIdPipe()) id: string) {
     return this.sizesService.findOne(+id);
   }
 
   @UseGuards(AuthGuard)
   @Delete(":id")
-  remove(@Param("id", new CheckParamIdPipe()) id: number) {
+  remove(@Param("id", new CheckParamIdPipe()) id: string) {
     return this.sizesService.remove(+id);
   }
 }

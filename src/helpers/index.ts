@@ -1,0 +1,1 @@
+export { isStringWholeNumber } from "./isStringWholeNumber";

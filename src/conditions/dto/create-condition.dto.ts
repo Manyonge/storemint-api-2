@@ -1,7 +1,9 @@
-import { PickType } from "@nestjs/mapped-types";
-import { Condition } from "../entities/condition.entity";
+import { IsInt, IsNotEmpty } from "class-validator";
 
-export class CreateConditionDto extends PickType(Condition, [
-  "condition",
-  "retailerId",
-] as const) {}
+export class CreateConditionDto {
+  @IsNotEmpty()
+  condition: string;
+  @IsNotEmpty()
+  @IsInt()
+  retailerId: number;
+}
