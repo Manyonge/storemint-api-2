@@ -1,45 +1,63 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateCategoryDto } from "./dto/create-category.dto";
-import { RetailersService } from "../retailers/retailers.service";
 import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class CategoriesService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly retailersService: RetailersService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
-    const isCategoryExistent = await this.isCategoryExistent(
-      createCategoryDto.category,
-      createCategoryDto.retailerId,
-    );
-    if (isCategoryExistent) {
-      throw new HttpException(
-        "Category already exists",
-        HttpStatus.BAD_REQUEST,
+    try {
+      const categoryExists = await this.isCategoryExistent(
+        createCategoryDto.category,
+        createCategoryDto.retailerId,
       );
+      if (categoryExists) {
+        throw new BadRequestException("Category already exists");
+      }
+      return await this.prisma.category.create({
+        data: createCategoryDto,
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
     }
-
-    return await this.prisma.category.create({
-      data: createCategoryDto,
-    });
   }
 
   async findAll(retailerId: number) {
-    return await this.prisma.category.findMany({
-      where: { retailerId },
-      orderBy: { category: "asc" },
-    });
+    try {
+      return await this.prisma.category.findMany({
+        where: { retailerId },
+        orderBy: { category: "asc" },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async findOne(id: number) {
-    return await this.prisma.category.findUnique({ where: { id } });
+    try {
+      return await this.prisma.category.findUnique({ where: { id } });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async remove(id: number) {
-    return await this.prisma.category.delete({ where: { id } });
+    const category = await this.prisma.category.findUnique({
+      where: { id },
+    });
+    if (!category) {
+      throw new BadRequestException("category not found");
+    }
+    try {
+      return await this.prisma.category.delete({ where: { id } });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed!");
+    }
   }
 
   async isCategoryExistent(category: string, retailerId: number) {
