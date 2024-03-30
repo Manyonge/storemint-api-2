@@ -18,12 +18,10 @@ export class AppPipe implements PipeTransform {
       if (!!value?.productId) {
         return await this.checkProductId(value);
       }
-      if (
-        !!value?.id ||
-        (metadata?.type === "param" && metadata?.data === "id")
-      ) {
+      if (metadata?.type === "param" && metadata?.data === "id") {
         return await this.checkId(value);
       }
+      return value;
     } catch (e) {
       throw e;
     }
@@ -60,7 +58,7 @@ export class AppPipe implements PipeTransform {
     return value;
   }
   async checkId(value: any) {
-    const id = value?.id;
+    const id = value;
     if (!isWholeNumber(id)) {
       throw new BadRequestException("id must be a whole number greater than 0");
     }

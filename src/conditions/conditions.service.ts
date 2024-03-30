@@ -7,15 +7,14 @@ export class ConditionsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createConditionDto: CreateConditionDto) {
+    const conditionExists = await this.isConditionExistent(
+      createConditionDto.condition,
+      createConditionDto.retailerId,
+    );
+    if (conditionExists) {
+      throw new BadRequestException("Condition already exists");
+    }
     try {
-      const conditionExists = await this.isConditionExistent(
-        createConditionDto.condition,
-        createConditionDto.retailerId,
-      );
-      if (conditionExists) {
-        throw new BadRequestException("Condition already exists");
-      }
-
       return await this.prisma.condition.create({
         data: createConditionDto,
       });

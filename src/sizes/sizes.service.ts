@@ -6,15 +6,14 @@ import { PrismaService } from "nestjs-prisma";
 export class SizesService {
   constructor(private prisma: PrismaService) {}
   async create(createSizeDto: CreateSizeDto) {
+    const sizeExists = await this.isSizeExistent(
+      createSizeDto.size,
+      createSizeDto.retailerId,
+    );
+    if (sizeExists) {
+      throw new BadRequestException("size already exists");
+    }
     try {
-      const sizeExists = await this.isSizeExistent(
-        createSizeDto.size,
-        createSizeDto.retailerId,
-      );
-      if (sizeExists) {
-        return new BadRequestException("size already exists");
-      }
-
       return await this.prisma.size.create({
         data: createSizeDto,
       });

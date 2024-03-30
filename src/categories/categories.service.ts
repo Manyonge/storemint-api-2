@@ -7,14 +7,14 @@ export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
+    const categoryExists = await this.isCategoryExistent(
+      createCategoryDto.category,
+      createCategoryDto.retailerId,
+    );
+    if (categoryExists) {
+      throw new BadRequestException("Category already exists");
+    }
     try {
-      const categoryExists = await this.isCategoryExistent(
-        createCategoryDto.category,
-        createCategoryDto.retailerId,
-      );
-      if (categoryExists) {
-        throw new BadRequestException("Category already exists");
-      }
       return await this.prisma.category.create({
         data: createCategoryDto,
       });
