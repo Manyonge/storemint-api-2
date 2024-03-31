@@ -12,7 +12,13 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.enableCors({
     credentials: true,
-    origin: ["localhost", "*.storemint.shop"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:6000",
+      "http://localhost:5174",
+      "https://dripventory.storemint.shop",
+      "https://storemint.shop",
+    ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   });
   app.use(cookieParser());
