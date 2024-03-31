@@ -24,6 +24,7 @@ model User {
 
 enum Role {
   STORE_ADMIN
+  STORE_STAFF
 }
 
 enum Provider {
@@ -48,6 +49,7 @@ model Retailer {
   Size              Size[]
   Condition         Condition[]
   Customer          Customer[]
+  Staff             Staff[]
 }
 
 model Ewallet {
@@ -153,4 +155,17 @@ model PickupmtaaniAgent {
   locationRelation PickupmtaaniLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
   @@index([locationId])
+}
+
+model Staff {
+  id                Int      @id @default(autoincrement())
+  uid               Int      @unique
+  name              String
+  phoneNumber       String
+  email             String
+  retailerId        Int
+  createdAt         DateTime @default(now())
+  retailersRelation Retailer @relation(fields: [retailerId], references: [id], onDelete: Cascade)
+
+  @@index([retailerId])
 }

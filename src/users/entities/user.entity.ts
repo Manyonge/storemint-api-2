@@ -1,18 +1,14 @@
-import {ProviderEnum, RoleEnum} from "../enums";
-import {Timestamp} from "rxjs";
-import { IsEmail, IsNotEmpty } from "class-validator";
+import { ProviderEnum, RoleEnum } from "../enums";
 
 export class User {
-    uid: number;
+  uid: number;
+  email: string;
 
-    @IsEmail()
-    email: string;
-
-    phoneNumber: string;
-    name: string;
-    hash: string;
-    role: RoleEnum;
-    provider: ProviderEnum;
-    createdAt: Date;
-    updatedAt: Date
+  phoneNumber: string;
+  name: string;
+  hash: string;
+  role: RoleEnum;
+  provider: ProviderEnum;
+  createdAt: Date;
+  updatedAt: Date;
 }

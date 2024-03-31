@@ -1,4 +1,4 @@
-import { IsNotEmpty } from "class-validator";
+import { IsEmail, IsNotEmpty } from "class-validator";
 
 export class CreateWithPasswordDto {
   @IsNotEmpty()
@@ -6,6 +6,7 @@ export class CreateWithPasswordDto {
   @IsNotEmpty()
   businessName: string;
   @IsNotEmpty()
+  @IsEmail()
   businessEmail: string;
   //the following two will be extracted by files interceptor
   // @IsNotEmpty()
