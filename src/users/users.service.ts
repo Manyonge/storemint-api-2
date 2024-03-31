@@ -39,6 +39,7 @@ export class UsersService {
     });
     return user.uid;
   }
+
   async hashPassword(password: string) {
     const saltRounds = 10;
     return bcrypt.hash(password, saltRounds);
@@ -56,27 +57,13 @@ export class UsersService {
     return !!user;
   }
 
-  async findByEmailProvider(email: string): Promise<{
-    uid: number;
-    email: string;
-    phoneNumber: string;
-    name: string;
-    hash: string;
-    role: "STORE_ADMIN";
-  }> {
+  async findByEmailProvider(email: string): Promise<any> {
     return await this.prisma.user.findUnique({
       where: { email, provider: ProviderEnum.EMAIL },
     });
   }
 
-  async findByGoogleProvider(email: string): Promise<{
-    uid: number;
-    email: string;
-    phoneNumber: string;
-    name: string;
-    hash: string;
-    role: "STORE_ADMIN";
-  }> {
+  async findByGoogleProvider(email: string): Promise<any> {
     return await this.prisma.user.findUnique({
       where: { email, provider: ProviderEnum.GOOGLE },
     });
