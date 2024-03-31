@@ -4,6 +4,7 @@ import { ProviderEnum, RoleEnum } from "./enums";
 import { CreateWithPasswordDto } from "./dtos/create-with-password.dto";
 import { CreateWithoutPasswordDto } from "./dtos/create-without-password.dto";
 import { PrismaService } from "nestjs-prisma";
+import { CreateStaffUserDto } from "./dtos/create-staff-user.dto";
 
 @Injectable()
 export class UsersService {
@@ -38,6 +39,24 @@ export class UsersService {
       },
     });
     return user.uid;
+  }
+  async createStaffUser(createStaffDto: CreateStaffUserDto) {
+    try {
+      const hash = await this.hashPassword(createStaffDto?.password);
+      return await this.prisma.user.create({
+        data: {
+          name: createStaffDto?.name,
+          email: createStaffDto?.email,
+          phoneNumber: createStaffDto?.phoneNumber,
+          hash,
+          role: RoleEnum.STORE_STAFF,
+          provider: ProviderEnum.EMAIL,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
   }
   async hashPassword(password: string) {
     const saltRounds = 10;
