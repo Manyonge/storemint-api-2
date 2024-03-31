@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateStaffDto } from "./dto/create-staff.dto";
-import { UpdateStaffDto } from "./dto/update-staff.dto";
 import { PrismaService } from "nestjs-prisma";
 import { UsersService } from "../users/users.service";
 import { RetailersService } from "../retailers/retailers.service";
@@ -55,19 +54,50 @@ export class StaffService {
     }
   }
 
-  findAll() {
-    return `This action returns all staff`;
+  async findAll(retailerId: number) {
+    try {
+      return await this.prisma.staff.findMany({
+        where: {
+          retailerId,
+        },
+        orderBy: {
+          name: "asc",
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed");
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} staff`;
+  async findOne(id: number) {
+    try {
+      return await this.prisma.staff.findUnique({
+        where: { id },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("Operation failed");
+    }
   }
 
-  update(id: number, updateStaffDto: UpdateStaffDto) {
-    return `This action updates a #${id} staff`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} staff`;
+  async remove(id: number) {
+    const staff = await this.prisma.staff.findUnique({ where: { id } });
+    if (!staff) throw new BadRequestException("staff not found");
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          uid: staff.uid,
+        },
+      });
+      await this.prisma.staff.delete({ where: { id } });
+      if (user) {
+        await this.prisma.user.delete({ where: { uid: user.uid } });
+      }
+      return staff;
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
+    }
   }
 }

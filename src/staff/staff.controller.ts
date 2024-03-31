@@ -4,13 +4,13 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Query,
 } from "@nestjs/common";
 import { StaffService } from "./staff.service";
 import { CreateStaffDto } from "./dto/create-staff.dto";
-import { UpdateStaffDto } from "./dto/update-staff.dto";
 import { CheckIdParamPipe } from "../pipes/check-id-param-pipe.service";
+import { QueryParamDto } from "./dto/QueryParam.dto";
 
 @Controller("staff")
 export class StaffController {
@@ -22,21 +22,13 @@ export class StaffController {
   }
 
   @Get()
-  findAll() {
-    return this.staffService.findAll();
+  findAll(@Query() queryParamDto: QueryParamDto) {
+    return this.staffService.findAll(+queryParamDto.retailerId);
   }
 
   @Get(":id")
   findOne(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.staffService.findOne(+id);
-  }
-
-  @Patch(":id")
-  update(
-    @Param("id", new CheckIdParamPipe()) id: string,
-    @Body() updateStaffDto: UpdateStaffDto,
-  ) {
-    return this.staffService.update(+id, updateStaffDto);
   }
 
   @Delete(":id")
