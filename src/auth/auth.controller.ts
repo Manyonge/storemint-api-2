@@ -1,12 +1,20 @@
-import { Body, Controller, Get, Post, Req, Res, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UploadedFiles,
+  UseInterceptors,
+} from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {
-  }
+  constructor(private readonly authService: AuthService) {}
 
   @Post("signup-with-email")
   @UseInterceptors(
@@ -25,7 +33,7 @@ export class AuthController {
     @Body() createAuthEmailDto: any,
     @Res({ passthrough: true }) res: Response,
     @UploadedFiles()
-      files: {
+    files: {
       businessLogo?: Express.Multer.File[];
       passportPhoto?: Express.Multer.File[];
     },

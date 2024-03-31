@@ -45,13 +45,40 @@ export class AuthService {
     if (!isPassCorrect) {
       throw new BadRequestException("Email or Password is incorrect");
     }
-    const retailer = await this.retailersService.findByUid(user.uid);
-    const accessToken = await this.generateAccessToken(user.uid);
-    const refreshToken = await this.generateRefreshToken(user.uid);
-    res.cookie("refreshToken", refreshToken, {
-      maxAge: 6 * 30 * 24 * 60 * 60 * 1000,
-    });
-    res.send({ accessToken, retailerId: retailer.id, refreshToken });
+    try {
+      let retailerId = 0;
+      const retailer = await this.retailersService.findByUid(user.uid);
+      const staff = await this.prisma.staff.findFirst({
+        where: {
+          uid: user.uid,
+        },
+      });
+      if (!!retailer) {
+        retailerId = retailer.id;
+      } else if (!!staff) {
+        retailerId = staff.retailerId;
+      }
+      const accessToken = await this.generateAccessToken(user.uid);
+      const refreshToken = await this.generateRefreshToken(user.uid);
+      res.cookie("refreshToken", refreshToken, {
+        maxAge: 6 * 30 * 24 * 60 * 60 * 1000,
+      });
+      res.send({
+        accessToken,
+        retailerId,
+        refreshToken,
+        user: {
+          name: user.name,
+          uid: user.uid,
+          phoneNumber: user.phoneNumber,
+          email: user.email,
+          role: user.role,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      throw "operation failed";
+    }
   }
 
   async signUpWithEmail(
