@@ -80,7 +80,7 @@ model StoreProduct {
   condition        String
   createdAt        DateTime       @default(now())
   retailerRelation Retailer       @relation(fields: [retailerId], references: [id], onDelete: Cascade)
-  ProductImage     ProductImage[]
+  images           ProductImage[]
 
   @@index([retailerId])
 }
