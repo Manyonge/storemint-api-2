@@ -24,7 +24,6 @@ model User {
 
 enum Role {
   STORE_ADMIN
-  STORE_STAFF
 }
 
 enum Provider {
