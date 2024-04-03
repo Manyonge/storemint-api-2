@@ -20,6 +20,7 @@ import { PaymentsModule } from "./payments/payments.module";
 import { LoggingMiddleware } from "./middleware/logging.middleware";
 import { AppPipe } from "./pipes/app.pipe";
 import { StaffModule } from "./staff/staff.module";
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { StaffModule } from "./staff/staff.module";
     PickupmtaaniAgentsModule,
     PaymentsModule,
     StaffModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [
