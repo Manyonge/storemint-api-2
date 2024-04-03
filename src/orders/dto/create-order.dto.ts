@@ -1,5 +1,6 @@
 import { OrderTypeEnum } from "../../users/enums/OrderType.enum";
 import {
+  IsArray,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -46,4 +47,7 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   specialInstructions: string;
+  @IsArray()
+  @IsInt({ each: true })
+  productIds: number[];
 }

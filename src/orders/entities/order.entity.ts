@@ -2,6 +2,9 @@ import { OrderTypeEnum } from "../../users/enums/OrderType.enum";
 
 export class Order {
   id: number;
+  updatedAt: string;
+  deletedAt: string;
+  createdAt: string;
 
   retailerId: number;
 

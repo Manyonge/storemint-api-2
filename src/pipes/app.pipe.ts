@@ -18,6 +18,12 @@ export class AppPipe implements PipeTransform {
       if (!!value?.productId) {
         return await this.checkProductId(value);
       }
+      if (!!value?.productIds && Array.isArray(value.productIds)) {
+        for (const id in value.productIds) {
+          await this.checkProductId(id);
+        }
+        return value;
+      }
       if (metadata?.type === "param" && metadata?.data === "id") {
         return await this.checkId(value);
       }
