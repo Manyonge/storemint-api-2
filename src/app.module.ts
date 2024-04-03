@@ -15,11 +15,11 @@ import { PickupmtaaniLocationsModule } from "./pickupmtaani-locations/pickupmtaa
 import { PickupmtaaniAgentsModule } from "./pickupmtaani-agents/pickupmtaani-agents.module";
 import { PrismaModule } from "nestjs-prisma";
 import { APP_PIPE } from "@nestjs/core";
-import { OrdersModule } from "./orders/orders.module";
+
 import { PaymentsModule } from "./payments/payments.module";
 import { LoggingMiddleware } from "./middleware/logging.middleware";
 import { AppPipe } from "./pipes/app.pipe";
-import { StaffModule } from './staff/staff.module';
+import { StaffModule } from "./staff/staff.module";
 
 @Module({
   imports: [
@@ -38,7 +38,6 @@ import { StaffModule } from './staff/staff.module';
     CustomersModule,
     PickupmtaaniLocationsModule,
     PickupmtaaniAgentsModule,
-    OrdersModule,
     PaymentsModule,
     StaffModule,
   ],
