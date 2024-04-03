@@ -6,11 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from "@nestjs/common";
 import { OrdersService } from "./orders.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { UpdateOrderDto } from "./dto/update-order.dto";
 import { CheckIdParamPipe } from "../pipes/check-id-param-pipe.service";
+import { QueryParamDto } from "./dto/query-param.dto";
 
 @Controller("orders")
 export class OrdersController {
@@ -22,8 +24,8 @@ export class OrdersController {
   }
 
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findAll(@Query() queryParamDto: QueryParamDto) {
+    return this.ordersService.findAll(+queryParamDto.retailerId);
   }
 
   @Get(":id")
