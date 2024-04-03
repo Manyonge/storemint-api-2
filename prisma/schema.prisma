@@ -18,7 +18,7 @@ model User {
   role        Role
   provider    Provider
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now())
   retailer    Retailer?
 }
 
@@ -185,20 +185,20 @@ model Staff {
 model Order {
   id                  Int                 @id @default(autoincrement())
   createdAt           DateTime            @default(now())
-  updatedAt           DateTime
-  deletedAt           DateTime
+  updatedAt           DateTime            @default(now())
+  deletedAt           DateTime?
   retailerId          Int
   type                OrderType
   deliveryFee         Int
   clientName          String
   clientPhone         String
-  receiverLocation    String
-  receiverAgent       String
-  doorstepAddress     String
-  balance             Int
-  errandLocation      String
-  errandSacco         String
-  specialInstructions String
+  receiverLocation    String?
+  receiverAgent       String?
+  doorstepAddress     String?
+  balance             Int?
+  errandLocation      String?
+  errandSacco         String?
+  specialInstructions String?
   retailer            Retailer            @relation(fields: [retailerId], references: [id])
   products            OrderStoreProduct[]
 
@@ -208,8 +208,8 @@ model Order {
 model OrderStoreProduct {
   id         Int          @id @default(autoincrement())
   createdAt  DateTime     @default(now())
-  updatedAt  DateTime
-  deletedAt  DateTime
+  updatedAt  DateTime     @default(now())
+  deletedAt  DateTime?
   orderId    Int
   productId  Int
   retailerId Int
