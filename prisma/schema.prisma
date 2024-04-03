@@ -32,6 +32,14 @@ enum Provider {
   EMAIL
 }
 
+enum OrderType {
+  AGENT_FULLY_PAID
+  AGENT_PAY_ON_DELIVERY
+  DOORSTEP_FULLY_PAID
+  DOORSTEP_PAY_ON_DELIVERY
+  ERRAND
+}
+
 model Retailer {
   id                Int            @id @default(autoincrement())
   uid               Int            @unique
@@ -168,4 +176,23 @@ model Staff {
   retailersRelation Retailer @relation(fields: [retailerId], references: [id], onDelete: Cascade)
 
   @@index([retailerId])
+}
+
+model Order {
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime
+  deletedAt           DateTime
+  retailerId          Int
+  type                OrderType
+  deliveryFee         Int
+  clientName          String
+  clientPhone         String
+  receiverLocation    String
+  receiverAgent       String
+  doorstepAddress     String
+  balance             Int
+  errandLocation      String
+  errandSacco         String
+  specialInstructions String
 }
