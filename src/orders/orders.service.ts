@@ -6,14 +6,29 @@ import { PrismaService } from "nestjs-prisma";
 @Injectable()
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
-  async create(createOrderDto: CreateOrderDto) {
+  async create(createOrderDto: CreateOrderDto): Promise<any> {
     try {
-      const order = await this.prisma.order.create({ data: createOrderDto });
-      for (const id in createOrderDto.productIds) {
-        await this.prisma.orderProduct.create({
+      const order = await this.prisma.order.create({
+        data: {
+          retailerId: createOrderDto.retailerId,
+          type: createOrderDto.type,
+          deliveryFee: createOrderDto.deliveryFee,
+          clientName: createOrderDto.clientName,
+          clientPhone: createOrderDto.clientPhone,
+          receiverLocation: createOrderDto.receiverLocation,
+          receiverAgent: createOrderDto.receiverAgent,
+          doorstepAddress: createOrderDto.doorstepAddress,
+          balance: createOrderDto.balance,
+          errandLocation: createOrderDto.errandLocation,
+          errandSacco: createOrderDto.errandSacco,
+          specialInstructions: createOrderDto.specialInstructions,
+        },
+      });
+      for (let i = 0; i < createOrderDto.productIds.length; i++) {
+        await this.prisma.orderStoreProduct.create({
           data: {
             orderId: order.id,
-            productId: id,
+            productId: createOrderDto.productIds[i],
             retailerId: createOrderDto.retailerId,
           },
         });
@@ -34,7 +49,7 @@ export class OrdersService {
   }
 
   update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+    return updateOrderDto;
   }
 
   remove(id: number) {
