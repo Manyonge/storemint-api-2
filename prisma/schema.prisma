@@ -195,7 +195,7 @@ model Order {
   deletedAt           DateTime?
   retailerId          Int
   type                OrderType
-  state               OrderState
+  state               OrderState?
   deliveryFee         Int
   clientName          String
   clientPhone         String
