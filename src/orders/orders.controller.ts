@@ -1,32 +1,53 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from "@nestjs/common";
 import { OrdersService } from "./orders.service";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { UpdateOrderDto } from "./dto/update-order.dto";
+import { CheckIdParamPipe } from "../pipes/check-id-param-pipe.service";
+import { QueryParamDto } from "./dto/query-param.dto";
 
 @Controller("orders")
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  create(@Body() createOrderDto: any) {
+  create(@Body() createOrderDto: CreateOrderDto): Promise<any> {
     return this.ordersService.create(createOrderDto);
   }
 
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findAll(@Query() queryParamDto: QueryParamDto) {
+    return this.ordersService.findAll(queryParamDto);
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
+  findOne(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.ordersService.findOne(+id);
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() updateOrderDto: any) {
+  update(
+    @Param("id", new CheckIdParamPipe()) id: string,
+    @Body() updateOrderDto: UpdateOrderDto,
+  ) {
     return this.ordersService.update(+id, updateOrderDto);
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
+  remove(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.ordersService.remove(+id);
+  }
+
+  @Get(":id/products")
+  findOrderProducts(@Param("id", new CheckIdParamPipe()) id: string) {
+    return this.ordersService.findOrderProducts(+id);
   }
 }

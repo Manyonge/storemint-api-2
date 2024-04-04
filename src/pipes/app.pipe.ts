@@ -13,13 +13,18 @@ export class AppPipe implements PipeTransform {
   async transform(value: any, metadata: ArgumentMetadata) {
     try {
       if (!!value?.retailerId) {
-        return await this.checkRetailerId(value);
+        await this.checkRetailerId(value);
       }
       if (!!value?.productId) {
-        return await this.checkProductId(value);
+        await this.checkProductId(value);
+      }
+      if (!!value?.productIds) {
+        for (let i = 0; i < value.productIds.length; i++) {
+          await this.checkProductId({ productId: value.productIds[i] });
+        }
       }
       if (metadata?.type === "param" && metadata?.data === "id") {
-        return await this.checkId(value);
+        await this.checkId(value);
       }
       return value;
     } catch (e) {
