@@ -25,7 +25,7 @@ export class OrdersController {
 
   @Get()
   findAll(@Query() queryParamDto: QueryParamDto) {
-    return this.ordersService.findAll(+queryParamDto.retailerId);
+    return this.ordersService.findAll(queryParamDto);
   }
 
   @Get(":id")
