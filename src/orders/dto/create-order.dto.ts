@@ -1,4 +1,4 @@
-import { OrderTypeEnum } from "../../users/enums/OrderType.enum";
+import { OrderTypeEnum } from "../../users/enums/order-type.enum";
 import {
   ArrayMinSize,
   IsArray,
@@ -9,11 +9,15 @@ import {
   IsString,
   Min,
 } from "class-validator";
+import { OrderStateEnum } from "../../users/enums";
 
 export class CreateOrderDto {
   @IsNotEmpty()
   @IsInt()
   retailerId: number;
+  @IsNotEmpty()
+  @IsEnum(OrderStateEnum)
+  state: OrderStateEnum;
   @IsNotEmpty()
   @IsEnum(OrderTypeEnum)
   type: OrderTypeEnum;

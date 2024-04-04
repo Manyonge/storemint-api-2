@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { UpdateOrderDto } from "./dto/update-order.dto";
 import { PrismaService } from "nestjs-prisma";
+import { QueryParamDto } from "./dto/query-param.dto";
 
 @Injectable()
 export class OrdersService {
@@ -25,6 +26,7 @@ export class OrdersService {
         data: {
           retailerId: createOrderDto.retailerId,
           type: createOrderDto.type,
+          state: createOrderDto.state,
           deliveryFee: createOrderDto.deliveryFee,
           clientName: createOrderDto.clientName,
           clientPhone: createOrderDto.clientPhone,
@@ -62,11 +64,20 @@ export class OrdersService {
     }
   }
 
-  async findAll(retailerId: number): Promise<any> {
+  async findAll(queryParamDto: QueryParamDto): Promise<any> {
     try {
+      if (!!queryParamDto.state) {
+        return await this.prisma.order.findMany({
+          where: {
+            retailerId: queryParamDto.retailerId,
+            state: queryParamDto.state,
+            deletedAt: null,
+          },
+        });
+      }
       return await this.prisma.order.findMany({
         where: {
-          retailerId,
+          retailerId: queryParamDto.retailerId,
           deletedAt: null,
         },
       });

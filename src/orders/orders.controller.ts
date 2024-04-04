@@ -33,11 +33,6 @@ export class OrdersController {
     return this.ordersService.findOne(+id);
   }
 
-  @Get(":id/products")
-  findOrderProducts(@Param("id", new CheckIdParamPipe()) id: string) {
-    return this.ordersService.findOrderProducts(+id);
-  }
-
   @Patch(":id")
   update(
     @Param("id", new CheckIdParamPipe()) id: string,
@@ -49,5 +44,10 @@ export class OrdersController {
   @Delete(":id")
   remove(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.ordersService.remove(+id);
+  }
+
+  @Get(":id/products")
+  findOrderProducts(@Param("id", new CheckIdParamPipe()) id: string) {
+    return this.ordersService.findOrderProducts(+id);
   }
 }

@@ -1,4 +1,4 @@
-import { OrderTypeEnum } from "../../users/enums/OrderType.enum";
+import { OrderTypeEnum } from "../../users/enums/order-type.enum";
 
 export class Order {
   id: number;

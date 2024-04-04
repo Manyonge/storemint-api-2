@@ -40,6 +40,12 @@ enum OrderType {
   ERRAND
 }
 
+enum OrderState {
+  PENDING_DISPATCH
+  DISPATCHED
+  FULFILLED
+}
+
 model Retailer {
   id                Int                 @id @default(autoincrement())
   uid               Int                 @unique
@@ -189,6 +195,7 @@ model Order {
   deletedAt           DateTime?
   retailerId          Int
   type                OrderType
+  state               OrderState
   deliveryFee         Int
   clientName          String
   clientPhone         String
