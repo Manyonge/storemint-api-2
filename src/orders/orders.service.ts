@@ -77,7 +77,7 @@ export class OrdersService {
       }
       return await this.prisma.order.findMany({
         where: {
-          retailerId: queryParamDto.retailerId,
+          retailerId: parseInt(queryParamDto.retailerId),
           deletedAt: null,
         },
       });
