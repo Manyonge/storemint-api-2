@@ -69,7 +69,7 @@ export class OrdersService {
       if (!!queryParamDto.state) {
         return await this.prisma.order.findMany({
           where: {
-            retailerId: queryParamDto.retailerId,
+            retailerId: parseInt(queryParamDto.retailerId),
             state: queryParamDto.state,
             deletedAt: null,
           },

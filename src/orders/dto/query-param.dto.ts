@@ -3,7 +3,7 @@ import { OrderStateEnum } from "../../users/enums";
 
 export class QueryParamDto {
   @IsNotEmpty()
-  retailerId: number;
+  retailerId: string;
   @IsOptional()
   @IsEnum(OrderStateEnum)
   state: OrderStateEnum;
