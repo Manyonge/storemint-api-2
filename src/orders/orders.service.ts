@@ -15,9 +15,7 @@ export class OrdersService {
         },
       });
       if (product.stock < 1) {
-        throw new BadRequestException(
-          "one or all of these products are already sold out",
-        );
+        throw new BadRequestException(`${product.name} is sold out`);
       } else {
         validProducts.push(product);
       }
@@ -78,15 +76,111 @@ export class OrdersService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  async findOne(id: number): Promise<any> {
+    try {
+      return await this.prisma.order.findUnique({
+        where: {
+          id,
+          deletedAt: null,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
+    }
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return updateOrderDto;
+  async update(id: number, updateOrderDto: UpdateOrderDto): Promise<any> {
+    const order = await this.prisma.order.findUnique({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
+    if (!order) throw new BadRequestException("order not found");
+    try {
+      const updatedAt = new Date();
+      return await this.prisma.order.update({
+        where: { id },
+        data: { ...updateOrderDto, updatedAt: updatedAt.toISOString() },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  async remove(id: number): Promise<any> {
+    const order = await this.prisma.order.findUnique({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
+    if (!order) throw new BadRequestException("order not found");
+    try {
+      const deletedAt = new Date();
+      await this.prisma.order.update({
+        where: { id },
+        data: {
+          updatedAt: deletedAt.toISOString(),
+          deletedAt: deletedAt.toISOString(),
+        },
+      });
+      const orderStoreProducts = await this.prisma.orderStoreProduct.findMany({
+        where: {
+          orderId: id,
+        },
+      });
+      if (orderStoreProducts.length > 0) {
+        for (let i = 0; i < orderStoreProducts.length; i++) {
+          await this.prisma.orderStoreProduct.update({
+            where: {
+              id: orderStoreProducts[i].id,
+            },
+            data: {
+              updatedAt: deletedAt.toISOString(),
+              deletedAt: deletedAt.toISOString(),
+            },
+          });
+        }
+      }
+      return true;
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
+    }
+  }
+
+  async findOrderProducts(id: number): Promise<any> {
+    const order = await this.prisma.order.findUnique({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
+    if (!order) throw new BadRequestException("order not found");
+    try {
+      const products = await this.prisma.orderStoreProduct.findMany({
+        where: {
+          orderId: id,
+          deletedAt: null,
+        },
+        include: {
+          product: true,
+        },
+      });
+      const orderList = [];
+      if (products.length > 0) {
+        for (let i = 0; i < products.length; i++) {
+          const product = { ...products[i].product };
+          orderList.push(product);
+        }
+      }
+      return orderList;
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
+    }
   }
 }
