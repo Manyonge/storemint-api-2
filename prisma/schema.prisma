@@ -18,7 +18,7 @@ model User {
   role        Role
   provider    Provider
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @default(now())
+  updatedAt   DateTime? @default(now())
   retailer    Retailer?
 }
 
@@ -32,24 +32,40 @@ enum Provider {
   EMAIL
 }
 
+enum OrderType {
+  AGENT_FULLY_PAID
+  AGENT_PAY_ON_DELIVERY
+  DOORSTEP_FULLY_PAID
+  DOORSTEP_PAY_ON_DELIVERY
+  ERRAND
+}
+
+enum OrderState {
+  PENDING_DISPATCH
+  DISPATCHED
+  FULFILLED
+}
+
 model Retailer {
-  id                Int            @id @default(autoincrement())
-  uid               Int            @unique
-  businessName      String?        @unique
-  businessEmail     String         @unique
+  id                Int                 @id @default(autoincrement())
+  uid               Int                 @unique
+  businessName      String?             @unique
+  businessEmail     String              @unique
   businessLogo      String?
   passportPhoto     String?
   businessInstagram String?
   nationalId        String?
-  createdAt         DateTime       @default(now())
+  createdAt         DateTime            @default(now())
   ewallet           Ewallet?
-  userRelation      User           @relation(fields: [uid], references: [uid], onDelete: Cascade)
+  userRelation      User                @relation(fields: [uid], references: [uid], onDelete: Cascade)
   Product           StoreProduct[]
   Category          Category[]
   Size              Size[]
   Condition         Condition[]
   Customer          Customer[]
   Staff             Staff[]
+  Order             Order[]
+  OrderStoreProduct OrderStoreProduct[]
 }
 
 model Ewallet {
@@ -68,19 +84,20 @@ model RefreshToken {
 }
 
 model StoreProduct {
-  id               Int            @id @default(autoincrement())
-  name             String
-  description      String
-  price            Int
-  stock            Int
-  isHidden         Boolean
-  retailerId       Int
-  category         String
-  size             String
-  condition        String
-  createdAt        DateTime       @default(now())
-  retailerRelation Retailer       @relation(fields: [retailerId], references: [id], onDelete: Cascade)
-  ProductImage     ProductImage[]
+  id                Int                 @id @default(autoincrement())
+  name              String
+  description       String
+  price             Int
+  stock             Int
+  isHidden          Boolean
+  retailerId        Int
+  category          String
+  size              String
+  condition         String
+  createdAt         DateTime            @default(now())
+  retailerRelation  Retailer            @relation(fields: [retailerId], references: [id], onDelete: Cascade)
+  images            ProductImage[]
+  OrderStoreProduct OrderStoreProduct[]
 
   @@index([retailerId])
 }
@@ -168,4 +185,45 @@ model Staff {
   retailersRelation Retailer @relation(fields: [retailerId], references: [id], onDelete: Cascade)
 
   @@index([retailerId])
+}
+
+model Order {
+  id                  Int                 @id @default(autoincrement())
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @default(now())
+  deletedAt           DateTime?
+  retailerId          Int
+  type                OrderType
+  state               OrderState?
+  deliveryFee         Int
+  clientName          String
+  clientPhone         String
+  receiverLocation    String?
+  receiverAgent       String?
+  doorstepAddress     String?
+  balance             Int?
+  errandLocation      String?
+  errandSacco         String?
+  specialInstructions String?
+  retailer            Retailer            @relation(fields: [retailerId], references: [id])
+  products            OrderStoreProduct[]
+
+  @@index([retailerId])
+}
+
+model OrderStoreProduct {
+  id         Int          @id @default(autoincrement())
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now())
+  deletedAt  DateTime?
+  orderId    Int
+  productId  Int
+  retailerId Int
+  retailer   Retailer     @relation(fields: [retailerId], references: [id])
+  product    StoreProduct @relation(fields: [productId], references: [id])
+  order      Order        @relation(fields: [orderId], references: [id])
+
+  @@index([retailerId])
+  @@index([productId])
+  @@index([orderId])
 }
