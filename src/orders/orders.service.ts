@@ -73,6 +73,7 @@ export class OrdersService {
             state: queryParamDto.state,
             deletedAt: null,
           },
+          orderBy: { createdAt: "desc" },
         });
       }
       return await this.prisma.order.findMany({
@@ -80,6 +81,7 @@ export class OrdersService {
           retailerId: parseInt(queryParamDto.retailerId),
           deletedAt: null,
         },
+        orderBy: { createdAt: "desc" },
       });
     } catch (e) {
       console.log(e);
@@ -142,6 +144,7 @@ export class OrdersService {
         where: {
           orderId: id,
         },
+        orderBy: { createdAt: "desc" },
       });
       if (orderStoreProducts.length > 0) {
         for (let i = 0; i < orderStoreProducts.length; i++) {
@@ -177,6 +180,7 @@ export class OrdersService {
           orderId: id,
           deletedAt: null,
         },
+        orderBy: { createdAt: "desc" },
         include: {
           product: true,
         },
