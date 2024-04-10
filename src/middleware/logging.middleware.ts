@@ -4,6 +4,8 @@ import * as morgan from "morgan";
 @Injectable()
 export class LoggingMiddleware implements NestMiddleware {
   use(req: any, res: any, next: () => void) {
-    morgan("tiny")(req, res, next);
+    morgan(
+      ":method :url :status :res[content-length] - :response-time ms [:date[clf]]",
+    )(req, res, next);
   }
 }
