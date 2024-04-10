@@ -5,7 +5,7 @@ import * as morgan from "morgan";
 export class LoggingMiddleware implements NestMiddleware {
   use(req: any, res: any, next: () => void) {
     morgan(
-      ":method :url :status :res[content-length] - :response-time ms [:date[clf]]",
+      ":method :url :status :res[content-length] - :response-time ms [:date[web]]",
     )(req, res, next);
   }
 }
