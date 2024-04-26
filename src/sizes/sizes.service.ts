@@ -6,10 +6,13 @@ import { PrismaService } from "nestjs-prisma";
 export class SizesService {
   constructor(private prisma: PrismaService) {}
   async create(createSizeDto: CreateSizeDto) {
-    const sizeExists = await this.isSizeExistent(
-      createSizeDto.size,
-      createSizeDto.retailerId,
-    );
+    const sizeExists = await this.prisma.size.findUnique({
+      where: {
+        size: createSizeDto.size,
+        retailerId: createSizeDto.retailerId,
+        deletedAt: null,
+      },
+    });
     if (sizeExists) {
       throw new BadRequestException("size already exists");
     }
@@ -27,7 +30,7 @@ export class SizesService {
     try {
       return await this.prisma.size.findMany({
         orderBy: { size: "desc" },
-        where: { retailerId },
+        where: { retailerId, deletedAt: null },
       });
     } catch (e) {
       console.log(e);
@@ -37,7 +40,9 @@ export class SizesService {
 
   async findOne(id: number) {
     try {
-      return await this.prisma.size.findUnique({ where: { id } });
+      return await this.prisma.size.findUnique({
+        where: { id, deletedAt: null },
+      });
     } catch (e) {
       console.log(e);
       throw new BadRequestException("Operation failed!");
@@ -46,28 +51,22 @@ export class SizesService {
 
   async remove(id: number) {
     const size = await this.prisma.size.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!size) {
       throw new BadRequestException("size not found");
     }
     try {
-      return await this.prisma.size.delete({ where: { id } });
+      const deletedAt = new Date();
+      return await this.prisma.size.update({
+        where: { id },
+        data: {
+          deletedAt: deletedAt.toISOString(),
+        },
+      });
     } catch (e) {
       console.log(e);
       throw new BadRequestException("Operation failed!");
-    }
-  }
-
-  async isSizeExistent(size: string, retailerId: number) {
-    try {
-      const foundSize = await this.prisma.size.findUnique({
-        where: { size, retailerId },
-      });
-      return !!foundSize;
-    } catch (e) {
-      console.log(e);
-      throw e;
     }
   }
 }

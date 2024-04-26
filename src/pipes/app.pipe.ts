@@ -18,6 +18,9 @@ export class AppPipe implements PipeTransform {
       if (!!value?.productId) {
         await this.checkProductId(value);
       }
+      if (!!value?.imageId) {
+        await this.checkImageId(value);
+      }
       if (!!value?.productIds) {
         for (let i = 0; i < value.productIds.length; i++) {
           await this.checkProductId({ productId: value.productIds[i] });
@@ -40,7 +43,7 @@ export class AppPipe implements PipeTransform {
       );
     }
     const retailer = await this.prisma.retailer.findUnique({
-      where: { id: Number(retailerId) },
+      where: { id: Number(retailerId), deletedAt: null },
     });
     if (!retailer) {
       throw new BadRequestException("Retailer not found");
@@ -55,10 +58,25 @@ export class AppPipe implements PipeTransform {
       );
     }
     const product = await this.prisma.storeProduct.findUnique({
-      where: { id: Number(productId) },
+      where: { id: Number(productId), deletedAt: null },
     });
     if (!product) {
       throw new BadRequestException("Product not found");
+    }
+    return value;
+  }
+  async checkImageId(value: any) {
+    const imageId = value.imageId;
+    if (!isWholeNumber(imageId)) {
+      throw new BadRequestException(
+        "imageId must be a whole number greater than 0",
+      );
+    }
+    const image = await this.prisma.productImage.findUnique({
+      where: { id: Number(imageId), deletedAt: null },
+    });
+    if (!image) {
+      throw new BadRequestException("Image not found");
     }
     return value;
   }
