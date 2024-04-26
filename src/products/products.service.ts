@@ -102,7 +102,7 @@ export class ProductsService {
     try {
       const deletedAt = new Date();
       const productImages = await this.prisma.productImage.findMany({
-        where: { productId: id },
+        where: { productId: id, deletedAt: null },
       });
       if (productImages.length > 0) {
         for (let i = 0; i < productImages.length; i++) {
@@ -114,7 +114,7 @@ export class ProductsService {
           });
         }
       }
-      await this.prisma.storeProduct.update({
+      return await this.prisma.storeProduct.update({
         where: { id },
         data: { deletedAt: deletedAt.toISOString() },
       });
