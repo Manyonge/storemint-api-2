@@ -96,32 +96,31 @@ export class ProductsService {
     const product = this.prisma.storeProduct.findUnique({
       where: { id, deletedAt: null },
     });
-    if (product) {
-      try {
-        const deletedAt = new Date();
-        const productImages = await this.prisma.productImage.findMany({
-          where: { productId: id, deletedAt: null },
-        });
-        if (productImages.length > 0) {
-          for (let i = 0; i < productImages.length; i++) {
-            await this.prisma.productImage.update({
-              where: { id: productImages[i].id },
-              data: {
-                deletedAt: deletedAt.toISOString(),
-              },
-            });
-          }
-        }
-        return await this.prisma.storeProduct.update({
-          where: { id },
-          data: { deletedAt: deletedAt.toISOString() },
-        });
-      } catch (e) {
-        console.log(e);
-        throw new BadRequestException("operation failed");
-      }
-    } else {
+    if (!product) {
       throw new BadRequestException("product not found");
+    }
+    try {
+      const deletedAt = new Date();
+      const productImages = await this.prisma.productImage.findMany({
+        where: { productId: id, deletedAt: null },
+      });
+      if (productImages.length > 0) {
+        for (let i = 0; i < productImages.length; i++) {
+          await this.prisma.productImage.update({
+            where: { id: productImages[i].id },
+            data: {
+              deletedAt: deletedAt.toISOString(),
+            },
+          });
+        }
+      }
+      return await this.prisma.storeProduct.update({
+        where: { id },
+        data: { deletedAt: deletedAt.toISOString() },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
     }
   }
 
