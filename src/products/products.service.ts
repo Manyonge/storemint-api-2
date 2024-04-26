@@ -93,24 +93,35 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-    const deletedAt = new Date();
-    const productImages = await this.prisma.productImage.findMany({
-      where: { productId: id },
+    const product = this.prisma.storeProduct.findUnique({
+      where: { id, deletedAt: null },
     });
-    if (productImages.length > 0) {
-      for (let i = 0; i < productImages.length; i++) {
-        await this.prisma.productImage.update({
-          where: { id: productImages[i].id },
-          data: {
-            deletedAt: deletedAt.toISOString(),
-          },
-        });
-      }
+    if (!product) {
+      throw new BadRequestException("product not found");
     }
-    await this.prisma.storeProduct.update({
-      where: { id },
-      data: { deletedAt: deletedAt.toISOString() },
-    });
+    try {
+      const deletedAt = new Date();
+      const productImages = await this.prisma.productImage.findMany({
+        where: { productId: id },
+      });
+      if (productImages.length > 0) {
+        for (let i = 0; i < productImages.length; i++) {
+          await this.prisma.productImage.update({
+            where: { id: productImages[i].id },
+            data: {
+              deletedAt: deletedAt.toISOString(),
+            },
+          });
+        }
+      }
+      await this.prisma.storeProduct.update({
+        where: { id },
+        data: { deletedAt: deletedAt.toISOString() },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
+    }
   }
 
   async createOneProductImage(
