@@ -1,13 +1,8 @@
 import { Request } from "express";
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { ImagesService } from "../images/images.service";
-import { RetailersService } from "../retailers/retailers.service";
 import { UploadedFilesDto } from "./dto/uploaded-files.dto";
 import { PrismaService } from "nestjs-prisma";
 
@@ -16,10 +11,9 @@ export class ProductsService {
   constructor(
     private prisma: PrismaService,
     private readonly imagesService: ImagesService,
-    private readonly retailersService: RetailersService,
   ) {}
+
   async create(createProductDto: CreateProductDto) {
-    console.log({ createProductDto });
     return await this.prisma.storeProduct.create({
       data: createProductDto as any,
     });
@@ -29,52 +23,66 @@ export class ProductsService {
     if (request.query.inStock && +request.query.inStock === 1) {
       return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
-        where: { retailerId, stock: { gt: 0 } },
+        where: { retailerId, deletedAt: null, stock: { gt: 0 } },
       });
     }
     if (request.query.inStock && +request.query.inStock === 0) {
       return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
-        where: { retailerId, stock: 0 },
+        where: { retailerId, deletedAt: null, stock: 0 },
       });
     }
 
     if (request.query.isHidden && +request.query.isHidden === 1) {
       return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
-        where: { retailerId, isHidden: true },
+        where: { retailerId, deletedAt: null, isHidden: true },
       });
     }
 
     if (request.query.category) {
       return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
-        where: { retailerId, category: request.query.category as string },
+        where: {
+          retailerId,
+          deletedAt: null,
+          category: request.query.category as string,
+        },
       });
     }
 
     if (request.query.size) {
       return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
-        where: { retailerId, size: request.query.size as string },
+        where: {
+          retailerId,
+          deletedAt: null,
+          size: request.query.size as string,
+        },
       });
     }
 
     if (request.query.condition) {
       return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
-        where: { retailerId, condition: request.query.condition as string },
+        where: {
+          retailerId,
+          deletedAt: null,
+          condition: request.query.condition as string,
+        },
       });
     } else {
       return await this.prisma.storeProduct.findMany({
         orderBy: { createdAt: "desc" },
-        where: { retailerId },
+        where: { retailerId, deletedAt: null },
       });
     }
   }
 
   async findOne(id: number) {
-    return await this.prisma.storeProduct.findUnique({ where: { id } });
+    return await this.prisma.storeProduct.findUnique({
+      where: { id, deletedAt: null },
+    });
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
@@ -85,13 +93,24 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-    const productImages = await this.findAllProductImages(id);
+    const deletedAt = new Date();
+    const productImages = await this.prisma.productImage.findMany({
+      where: { productId: id },
+    });
     if (productImages.length > 0) {
       for (let i = 0; i < productImages.length; i++) {
-        await this.imagesService.deleteByFilepath(productImages[i].filepath);
+        await this.prisma.productImage.update({
+          where: { id: productImages[i].id },
+          data: {
+            deletedAt: deletedAt.toISOString(),
+          },
+        });
       }
     }
-    await this.prisma.storeProduct.delete({ where: { id } });
+    await this.prisma.storeProduct.update({
+      where: { id },
+      data: { deletedAt: deletedAt.toISOString() },
+    });
   }
 
   async createOneProductImage(
@@ -99,10 +118,6 @@ export class ProductsService {
     position: number,
     file: UploadedFilesDto,
   ) {
-    const product = await this.findOne(productId);
-    if (!product) {
-      throw new BadRequestException("Product does not exist");
-    }
     try {
       const { publicUrl, filepath } = await this.imagesService.uploadImage(
         "product images",
@@ -117,24 +132,28 @@ export class ProductsService {
         },
       });
     } catch (e) {
-      throw new InternalServerErrorException();
+      throw new BadRequestException("operation failed");
     }
   }
+
   async findAllProductImages(productId: number) {
     return await this.prisma.productImage.findMany({
-      where: { productId },
+      where: { productId, deletedAt: null },
       orderBy: { position: "asc" },
     });
   }
+
   async findOneProductImage(imageId: number) {
     return await this.prisma.productImage.findUnique({
-      where: { id: imageId },
+      where: { id: imageId, deletedAt: null },
     });
   }
-  async deleteOneProductImage(imageId: number) {
-    const image = await this.findOneProductImage(imageId);
-    await this.imagesService.deleteByFilepath(image.filepath);
 
-    return await this.prisma.productImage.delete({ where: { id: imageId } });
+  async deleteOneProductImage(imageId: number) {
+    const deletedAt = new Date();
+    return await this.prisma.productImage.update({
+      where: { id: imageId },
+      data: { deletedAt: deletedAt.toISOString() },
+    });
   }
 }
