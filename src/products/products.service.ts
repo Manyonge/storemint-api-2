@@ -96,6 +96,7 @@ export class ProductsService {
     const product = this.prisma.storeProduct.findUnique({
       where: { id, deletedAt: null },
     });
+    console.log({ product });
     if (!product) throw new BadRequestException("product not found");
     try {
       const deletedAt = new Date();
