@@ -96,9 +96,7 @@ export class ProductsService {
     const product = this.prisma.storeProduct.findUnique({
       where: { id, deletedAt: null },
     });
-    if (!product) {
-      throw new BadRequestException("product not found");
-    }
+    if (!product) throw new BadRequestException("product not found");
     try {
       const deletedAt = new Date();
       const productImages = await this.prisma.productImage.findMany({
@@ -109,6 +107,7 @@ export class ProductsService {
           await this.prisma.productImage.update({
             where: { id: productImages[i].id },
             data: {
+              updatedAt: deletedAt.toISOString(),
               deletedAt: deletedAt.toISOString(),
             },
           });
@@ -116,7 +115,10 @@ export class ProductsService {
       }
       return await this.prisma.storeProduct.update({
         where: { id },
-        data: { deletedAt: deletedAt.toISOString() },
+        data: {
+          updatedAt: deletedAt.toISOString(),
+          deletedAt: deletedAt.toISOString(),
+        },
       });
     } catch (e) {
       console.log(e);
