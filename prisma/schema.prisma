@@ -95,6 +95,8 @@ model StoreProduct {
   size              String
   condition         String
   createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now())
+  deletedAt         DateTime?
   retailerRelation  Retailer            @relation(fields: [retailerId], references: [id], onDelete: Cascade)
   images            ProductImage[]
   OrderStoreProduct OrderStoreProduct[]
@@ -103,31 +105,37 @@ model StoreProduct {
 }
 
 model Category {
-  id               Int      @id @default(autoincrement())
-  category         String   @unique
+  id               Int       @id @default(autoincrement())
+  category         String    @unique
   retailerId       Int
-  createdAt        DateTime @default(now())
-  retailerRelation Retailer @relation(fields: [retailerId], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now())
+  deletedAt        DateTime?
+  retailerRelation Retailer  @relation(fields: [retailerId], references: [id])
 
   @@index([retailerId])
 }
 
 model Size {
-  id               Int      @id @default(autoincrement())
-  size             String   @unique
+  id               Int       @id @default(autoincrement())
+  size             String    @unique
   retailerId       Int
-  createdAt        DateTime @default(now())
-  retailerRelation Retailer @relation(fields: [retailerId], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now())
+  deletedAt        DateTime?
+  retailerRelation Retailer  @relation(fields: [retailerId], references: [id])
 
   @@index([retailerId])
 }
 
 model Condition {
-  id               Int      @id @default(autoincrement())
-  condition        String   @unique
+  id               Int       @id @default(autoincrement())
+  condition        String    @unique
   retailerId       Int
-  createdAt        DateTime @default(now())
-  retailerRelation Retailer @relation(fields: [retailerId], references: [id])
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now())
+  deletedAt        DateTime?
+  retailerRelation Retailer  @relation(fields: [retailerId], references: [id])
 
   @@index([retailerId])
 }
@@ -139,20 +147,24 @@ model ProductImage {
   position        Int
   productId       Int
   createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @default(now())
+  deletedAt       DateTime?
   productRelation StoreProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
 }
 
 model Customer {
-  id                Int      @id @default(autoincrement())
+  id                Int       @id @default(autoincrement())
   name              String
   phone             String
   email             String
   instagramHandle   String?
   retailerId        Int
-  createdAt         DateTime @default(now())
-  retailersRelation Retailer @relation(fields: [retailerId], references: [id], onDelete: Cascade)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now())
+  deletedAt         DateTime?
+  retailersRelation Retailer  @relation(fields: [retailerId], references: [id], onDelete: Cascade)
 
   @@index([retailerId])
 }
@@ -175,14 +187,16 @@ model PickupmtaaniAgent {
 }
 
 model Staff {
-  id                Int      @id @default(autoincrement())
-  uid               Int      @unique
+  id                Int       @id @default(autoincrement())
+  uid               Int       @unique
   name              String
   phoneNumber       String
   email             String
   retailerId        Int
-  createdAt         DateTime @default(now())
-  retailersRelation Retailer @relation(fields: [retailerId], references: [id], onDelete: Cascade)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now())
+  deletedAt         DateTime?
+  retailersRelation Retailer  @relation(fields: [retailerId], references: [id], onDelete: Cascade)
 
   @@index([retailerId])
 }
