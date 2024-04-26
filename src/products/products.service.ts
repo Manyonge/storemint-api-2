@@ -93,10 +93,9 @@ export class ProductsService {
   }
 
   async remove(id: number) {
-    const product = this.prisma.storeProduct.findUnique({
+    const product = await this.prisma.storeProduct.findUnique({
       where: { id, deletedAt: null },
     });
-    console.log({ product });
     if (!product) throw new BadRequestException("product not found");
     try {
       const deletedAt = new Date();
