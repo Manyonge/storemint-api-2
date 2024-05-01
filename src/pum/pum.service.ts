@@ -38,6 +38,11 @@ export class PumService {
     try {
       const response = await axios.get(
         `${process.env.PUM_BASE_URL}/package/delivery-charge?senderAgentID=${createAgentPackage.senderAgentID_id}&receiverAgentID=${createAgentPackage.receieverAgentID_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.PUM_TOKEN}`,
+          },
+        },
       );
       const delivery_fee = response.data.price;
       console.log({ deliveryFee: delivery_fee });
