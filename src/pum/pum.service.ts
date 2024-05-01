@@ -71,6 +71,11 @@ export class PumService {
             },
           ],
         },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.PUM_TOKEN}`,
+          },
+        },
       );
       return packageResponse.data;
     } catch (e) {
