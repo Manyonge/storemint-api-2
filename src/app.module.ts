@@ -21,6 +21,7 @@ import { LoggingMiddleware } from "./middleware/logging.middleware";
 import { AppPipe } from "./pipes/app.pipe";
 import { StaffModule } from "./staff/staff.module";
 import { OrdersModule } from './orders/orders.module';
+import { PumModule } from './pum/pum.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { OrdersModule } from './orders/orders.module';
     PaymentsModule,
     StaffModule,
     OrdersModule,
+    PumModule,
   ],
   controllers: [AppController],
   providers: [
