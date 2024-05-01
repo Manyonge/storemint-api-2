@@ -1,26 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePumDto } from './dto/create-pum.dto';
-import { UpdatePumDto } from './dto/update-pum.dto';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { QueryParamDto } from "./dto/query-param.dto";
+import * as dotenv from "dotenv";
+import axios from "axios";
 
+dotenv.config();
 @Injectable()
 export class PumService {
-  create(createPumDto: CreatePumDto) {
-    return 'This action adds a new pum';
+  async findAllLocations(queryParams: QueryParamDto) {
+    try {
+      const response = await axios.get(
+        `${process.env.PUM_BASE_URL}/agents-locations?region=${queryParams.region}`,
+      );
+      return response.data;
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
+    }
   }
 
-  findAll() {
-    return `This action returns all pum`;
-  }
-
-  findOne(id: number) {
+  findLocationAgents(id: number) {
     return `This action returns a #${id} pum`;
-  }
-
-  update(id: number, updatePumDto: UpdatePumDto) {
-    return `This action updates a #${id} pum`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} pum`;
   }
 }
