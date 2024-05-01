@@ -37,7 +37,7 @@ export class PumService {
   async createAgentPackage(createAgentPackage: CreateAgentPackageDto) {
     try {
       const response = await axios.get(
-        `${process.env.PUM_BASE_URL}/delivery-charge?senderAgentID=${createAgentPackage.senderAgentID_id}&receiverAgentID=${createAgentPackage.receieverAgentID_id}`,
+        `${process.env.PUM_BASE_URL}/package/delivery-charge?senderAgentID=${createAgentPackage.senderAgentID_id}&receiverAgentID=${createAgentPackage.receieverAgentID_id}`,
       );
       const delivery_fee = response.data.price;
       console.log({ deliveryFee: delivery_fee });
