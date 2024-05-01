@@ -18,7 +18,18 @@ export class PumService {
     }
   }
 
-  findLocationAgents(id: number) {
-    return `This action returns a #${id} pum`;
+  async findLocationAgents(id: number) {
+    try {
+      const { data } = await axios.get(`${process.env.PUM_BASE_URL}/agents`);
+      let filteredAgents = [];
+      const agents = data?.agents;
+      if (Array.isArray(agents) && agents.length > 0) {
+        filteredAgents = agents.filter((agent) => agent.location_id_id === id);
+      }
+      return filteredAgents;
+    } catch (e) {
+      console.log(e);
+      throw new BadRequestException("operation failed");
+    }
   }
 }
