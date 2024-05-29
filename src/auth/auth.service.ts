@@ -32,22 +32,29 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async loginWithEmail(loginDto: LoginDto, res: Response) {
-    //find user with this email
-    const user = await this.usersService.findByEmailProvider(loginDto.email);
-    //throw errors if email doesn't exist
-    if (!user) throw new BadRequestException("Email not found");
-    //compare
+  async login(loginDto: LoginDto) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: loginDto.email,
+      },
+    });
+
+    if (!user) throw new BadRequestException("email not found");
+
     const isPassCorrect = await this.usersService.comparePasswords(
       loginDto.password,
       user.hash,
     );
     if (!isPassCorrect) {
-      throw new BadRequestException("Email or Password is incorrect");
+      throw new BadRequestException("email or password is incorrect");
     }
     try {
       let retailerId = 0;
-      const retailer = await this.retailersService.findByUid(user.uid);
+      let retailer = await this.prisma.retailer.findUnique({
+        where: {
+          uid: user.uid,
+        },
+      });
       const staff = await this.prisma.staff.findFirst({
         where: {
           uid: user.uid,
@@ -55,18 +62,25 @@ export class AuthService {
       });
       if (!!retailer) {
         retailerId = retailer.id;
-      } else if (!!staff) {
+      }
+      if (!!staff) {
+        retailer = await this.prisma.retailer.findUnique({
+          where: {
+            id: staff.retailerId,
+          },
+        });
         retailerId = staff.retailerId;
       }
+
+      if (!retailer.isActivated) {
+        throw new BadRequestException("account not yet activated");
+      }
+
       const accessToken = await this.generateAccessToken(user.uid);
-      const refreshToken = await this.generateRefreshToken(user.uid);
-      res.cookie("refreshToken", refreshToken, {
-        maxAge: 6 * 30 * 24 * 60 * 60 * 1000,
-      });
-      res.send({
+
+      return {
         accessToken,
         retailerId,
-        refreshToken,
         user: {
           name: user.name,
           uid: user.uid,
@@ -74,10 +88,13 @@ export class AuthService {
           email: user.email,
           role: user.role,
         },
-      });
+      };
     } catch (e) {
       console.log(e);
-      throw "operation failed";
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException("internal server error");
     }
   }
 
