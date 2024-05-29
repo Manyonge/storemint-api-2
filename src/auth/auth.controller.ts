@@ -11,42 +11,29 @@ import {
 import { AuthService } from "./auth.service";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
+import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post("signup-with-email")
+  @Post("signup/email")
   @UseInterceptors(
     FileFieldsInterceptor([
       {
         name: "businessLogo",
         maxCount: 1,
       },
-      {
-        name: "passportPhoto",
-        maxCount: 1,
-      },
     ]),
   )
   signUpWithEmail(
-    @Body() createAuthEmailDto: any,
-    @Res({ passthrough: true }) res: Response,
+    @Body() createAuthEmailDto: CreateAuthEmailDto,
     @UploadedFiles()
     files: {
       businessLogo?: Express.Multer.File[];
-      passportPhoto?: Express.Multer.File[];
     },
   ) {
-    return this.authService.signUpWithEmail(createAuthEmailDto, files, res);
-  }
-
-  @Post("signin-with-google")
-  signinWithGoogle(
-    @Body() createGoogleSigninDto: any,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    return this.authService.signinWithGoogle(createGoogleSigninDto, res);
+    return this.authService.signUpWithEmail(createAuthEmailDto, files);
   }
 
   @Post("login")
