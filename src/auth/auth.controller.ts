@@ -12,6 +12,7 @@ import { AuthService } from "./auth.service";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
 import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
+import { LoginDto } from "./dto/login.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -37,8 +38,8 @@ export class AuthController {
   }
 
   @Post("login")
-  login(@Body() loginDto: any, @Res({ passthrough: true }) res: Response) {
-    return this.authService.loginWithEmail(loginDto, res);
+  login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @Get("refresh-token")
