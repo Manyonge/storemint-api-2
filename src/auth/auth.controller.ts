@@ -8,9 +8,9 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from "@nestjs/common";
-import { AuthService } from "./auth.service";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
+import { AuthService } from "./auth.service";
 import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
 import { LoginDto } from "./dto/login.dto";
 

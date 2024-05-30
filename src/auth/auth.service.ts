@@ -9,13 +9,13 @@ import * as dotenv from "dotenv";
 import { Request, Response } from "express";
 import { PrismaService } from "nestjs-prisma";
 import { EwalletsService } from "../ewallets/ewallets.service";
-import { UsersService } from "../users/users.service";
-import { LoginDto } from "./dto/login.dto";
-import { TokenEntity } from "./entities/token.entity";
-import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
-import { ProviderEnum, RoleEnum } from "../users/enums";
 import { ImagesService } from "../images/images.service";
 import { RetailersService } from "../retailers/retailers.service";
+import { ProviderEnum, RoleEnum } from "../users/enums";
+import { UsersService } from "../users/users.service";
+import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
+import { LoginDto } from "./dto/login.dto";
+import { TokenEntity } from "./entities/token.entity";
 
 dotenv.config();
 
@@ -33,22 +33,23 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto) {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        email: loginDto.email,
-      },
-    });
-
-    if (!user) throw new BadRequestException("email not found");
-
-    const isPassCorrect = await this.usersService.comparePasswords(
-      loginDto.password,
-      user.hash,
-    );
-    if (!isPassCorrect) {
-      throw new BadRequestException("email or password is incorrect");
-    }
     try {
+      const user = await this.prisma.user.findFirst({
+        where: {
+          email: loginDto.email,
+        },
+      });
+
+      if (!user) throw new BadRequestException("email not found");
+
+      const isPassCorrect = await this.usersService.comparePasswords(
+        loginDto.password,
+        user.hash,
+      );
+      if (!isPassCorrect) {
+        throw new BadRequestException("email or password is incorrect");
+      }
+
       let retailerId = 0;
       let retailer = await this.prisma.retailer.findUnique({
         where: {
@@ -90,6 +91,9 @@ export class AuthService {
         },
       };
     } catch (e) {
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
       console.log(e);
       if (e instanceof BadRequestException) {
         throw e;
@@ -104,31 +108,31 @@ export class AuthService {
       businessLogo?: Express.Multer.File[];
     },
   ) {
-    //is email and business name new
-    const email = await this.prisma.user.findFirst({
-      where: {
-        email: createAuthEmailDto.businessEmail,
-      },
-    });
-
-    if (email) {
-      throw new BadRequestException("email is already in use");
-    }
-
-    const retailer = await this.prisma.retailer.findFirst({
-      where: {
-        businessName: createAuthEmailDto.businessName,
-      },
-    });
-    if (retailer) {
-      throw new BadRequestException("business name is already in use");
-    }
-
-    if (createAuthEmailDto.password !== createAuthEmailDto.confirmPassword) {
-      throw new BadRequestException("passwords do not match");
-    }
-
     try {
+      //is email and business name new
+      const email = await this.prisma.user.findFirst({
+        where: {
+          email: createAuthEmailDto.businessEmail,
+        },
+      });
+
+      if (email) {
+        throw new BadRequestException("email is already in use");
+      }
+
+      const foundRetailer = await this.prisma.retailer.findFirst({
+        where: {
+          businessName: createAuthEmailDto.businessName,
+        },
+      });
+      if (foundRetailer) {
+        throw new BadRequestException("business name is already in use");
+      }
+
+      if (createAuthEmailDto.password !== createAuthEmailDto.confirmPassword) {
+        throw new BadRequestException("passwords do not match");
+      }
+
       const hashedPassword = await this.usersService.hashPassword(
         createAuthEmailDto.password,
       );
@@ -159,46 +163,69 @@ export class AuthService {
         },
       });
 
-      await this.ewalletService.create(retailer.id);
+      await this.ewalletService.create(foundRetailer.id);
 
       const accessToken = await this.generateAccessToken(user.uid);
 
-      return { accessToken, retailer };
+      return { accessToken, retailer: retailer };
     } catch (e: any) {
       console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
       throw new InternalServerErrorException("internal server error");
     }
   }
 
   async generateAccessToken(uid: number) {
-    const currentDate = new Date();
-    const timestamp = currentDate.getTime();
-    const iat = Math.floor(timestamp / 1000);
-    const date = new Date(timestamp);
-    date.setDate(date.getDate() + 7);
-    const newTimestamp = date.getTime();
-    const exp = Math.floor(newTimestamp / 1000);
-    const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "7d" };
-    return await this.jwtService.signAsync(payload);
+    try {
+      const currentDate = new Date();
+      const timestamp = currentDate.getTime();
+      const iat = Math.floor(timestamp / 1000);
+      const date = new Date(timestamp);
+      date.setDate(date.getDate() + 7);
+      const newTimestamp = date.getTime();
+      const exp = Math.floor(newTimestamp / 1000);
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "7d" };
+      return await this.jwtService.signAsync(payload);
+    } catch (e) {
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException("internal server error");
+    }
   }
 
   async generateRefreshToken(uid: number) {
-    const currentDate = new Date();
-    const timestamp = currentDate.getTime();
-    const iat = Math.floor(timestamp / 1000);
-    const date = new Date(timestamp);
-    date.setDate(date.getDate() + 7);
-    const newTimestamp = date.getTime();
-    const exp = Math.floor(newTimestamp / 1000);
-    const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "180d" };
-    const token = await this.jwtService.signAsync(payload);
-    //record in database
-    await this.prisma.refreshToken.create({ data: { token } });
-    return token;
+    try {
+      const currentDate = new Date();
+      const timestamp = currentDate.getTime();
+      const iat = Math.floor(timestamp / 1000);
+      const date = new Date(timestamp);
+      date.setDate(date.getDate() + 7);
+      const newTimestamp = date.getTime();
+      const exp = Math.floor(newTimestamp / 1000);
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "180d" };
+      const token = await this.jwtService.signAsync(payload);
+      //record in database
+      await this.prisma.refreshToken.create({ data: { token } });
+      return token;
+    } catch (e) {
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException("internal server error");
+    }
   }
-
   async findRefreshToken(token: string) {
-    return await this.prisma.refreshToken.findFirst({ where: { token } });
+    try {
+      return await this.prisma.refreshToken.findFirst({ where: { token } });
+    } catch (e) {
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException("internal server error");
+    }
   }
 
   async deleteRefreshToken(oldToken: string) {
