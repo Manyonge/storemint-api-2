@@ -8,50 +8,38 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from "@nestjs/common";
-import { AuthService } from "./auth.service";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
+import { AuthService } from "./auth.service";
+import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
+import { LoginDto } from "./dto/login.dto";
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post("signup-with-email")
+  @Post("signup/email")
   @UseInterceptors(
     FileFieldsInterceptor([
       {
         name: "businessLogo",
         maxCount: 1,
       },
-      {
-        name: "passportPhoto",
-        maxCount: 1,
-      },
     ]),
   )
   signUpWithEmail(
-    @Body() createAuthEmailDto: any,
-    @Res({ passthrough: true }) res: Response,
+    @Body() createAuthEmailDto: CreateAuthEmailDto,
     @UploadedFiles()
     files: {
       businessLogo?: Express.Multer.File[];
-      passportPhoto?: Express.Multer.File[];
     },
   ) {
-    return this.authService.signUpWithEmail(createAuthEmailDto, files, res);
-  }
-
-  @Post("signin-with-google")
-  signinWithGoogle(
-    @Body() createGoogleSigninDto: any,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    return this.authService.signinWithGoogle(createGoogleSigninDto, res);
+    return this.authService.signUpWithEmail(createAuthEmailDto, files);
   }
 
   @Post("login")
-  login(@Body() loginDto: any, @Res({ passthrough: true }) res: Response) {
-    return this.authService.loginWithEmail(loginDto, res);
+  login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @Get("refresh-token")

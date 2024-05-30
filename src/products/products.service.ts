@@ -1,10 +1,14 @@
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { Request } from "express";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { PrismaService } from "nestjs-prisma";
+import { ImagesService } from "../images/images.service";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
-import { ImagesService } from "../images/images.service";
 import { UploadedFilesDto } from "./dto/uploaded-files.dto";
-import { PrismaService } from "nestjs-prisma";
 
 @Injectable()
 export class ProductsService {
@@ -14,90 +18,122 @@ export class ProductsService {
   ) {}
 
   async create(createProductDto: CreateProductDto) {
-    return await this.prisma.storeProduct.create({
-      data: createProductDto as any,
-    });
+    try {
+      return await this.prisma.storeProduct.create({
+        data: createProductDto as any,
+      });
+    } catch (e) {
+      console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async findAll(retailerId: number, request: Request) {
-    if (request.query.inStock && +request.query.inStock === 1) {
-      return await this.prisma.storeProduct.findMany({
-        orderBy: { createdAt: "desc" },
-        where: { retailerId, deletedAt: null, stock: { gt: 0 } },
-      });
-    }
-    if (request.query.inStock && +request.query.inStock === 0) {
-      return await this.prisma.storeProduct.findMany({
-        orderBy: { createdAt: "desc" },
-        where: { retailerId, deletedAt: null, stock: 0 },
-      });
-    }
+    try {
+      if (request.query.inStock && +request.query.inStock === 1) {
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          where: { retailerId, deletedAt: null, stock: { gt: 0 } },
+        });
+      }
+      if (request.query.inStock && +request.query.inStock === 0) {
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          where: { retailerId, deletedAt: null, stock: 0 },
+        });
+      }
 
-    if (request.query.isHidden && +request.query.isHidden === 1) {
-      return await this.prisma.storeProduct.findMany({
-        orderBy: { createdAt: "desc" },
-        where: { retailerId, deletedAt: null, isHidden: true },
-      });
-    }
+      if (request.query.isHidden && +request.query.isHidden === 1) {
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          where: { retailerId, deletedAt: null, isHidden: true },
+        });
+      }
 
-    if (request.query.category) {
-      return await this.prisma.storeProduct.findMany({
-        orderBy: { createdAt: "desc" },
-        where: {
-          retailerId,
-          deletedAt: null,
-          category: request.query.category as string,
-        },
-      });
-    }
+      if (request.query.category) {
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          where: {
+            retailerId,
+            deletedAt: null,
+            category: request.query.category as string,
+          },
+        });
+      }
 
-    if (request.query.size) {
-      return await this.prisma.storeProduct.findMany({
-        orderBy: { createdAt: "desc" },
-        where: {
-          retailerId,
-          deletedAt: null,
-          size: request.query.size as string,
-        },
-      });
-    }
+      if (request.query.size) {
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          where: {
+            retailerId,
+            deletedAt: null,
+            size: request.query.size as string,
+          },
+        });
+      }
 
-    if (request.query.condition) {
-      return await this.prisma.storeProduct.findMany({
-        orderBy: { createdAt: "desc" },
-        where: {
-          retailerId,
-          deletedAt: null,
-          condition: request.query.condition as string,
-        },
-      });
-    } else {
-      return await this.prisma.storeProduct.findMany({
-        orderBy: { createdAt: "desc" },
-        where: { retailerId, deletedAt: null },
-      });
+      if (request.query.condition) {
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          where: {
+            retailerId,
+            deletedAt: null,
+            condition: request.query.condition as string,
+          },
+        });
+      } else {
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          where: { retailerId, deletedAt: null },
+        });
+      }
+    } catch (e) {
+      console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
   async findOne(id: number) {
-    return await this.prisma.storeProduct.findUnique({
-      where: { id, deletedAt: null },
-    });
+    try {
+      return await this.prisma.storeProduct.findUnique({
+        where: { id, deletedAt: null },
+      });
+    } catch (e) {
+      console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    return await this.prisma.storeProduct.update({
-      where: { id },
-      data: updateProductDto,
-    });
+    try {
+      return await this.prisma.storeProduct.update({
+        where: { id },
+        data: updateProductDto as any,
+      });
+    } catch (e) {
+      console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async remove(id: number) {
-    const product = await this.prisma.storeProduct.findUnique({
-      where: { id, deletedAt: null },
-    });
-    if (!product) throw new BadRequestException("product not found");
     try {
+      const product = await this.prisma.storeProduct.findUnique({
+        where: { id, deletedAt: null },
+      });
+      if (!product) throw new BadRequestException("product not found");
       const deletedAt = new Date();
       const productImages = await this.prisma.productImage.findMany({
         where: { productId: id, deletedAt: null },
@@ -122,7 +158,10 @@ export class ProductsService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("operation failed");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
@@ -145,28 +184,56 @@ export class ProductsService {
         },
       });
     } catch (e) {
-      throw new BadRequestException("operation failed");
+      console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
   async findAllProductImages(productId: number) {
-    return await this.prisma.productImage.findMany({
-      where: { productId, deletedAt: null },
-      orderBy: { position: "asc" },
-    });
+    try {
+      return await this.prisma.productImage.findMany({
+        where: { productId, deletedAt: null },
+        orderBy: { position: "asc" },
+      });
+    } catch (e) {
+      console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async findOneProductImage(imageId: number) {
-    return await this.prisma.productImage.findUnique({
-      where: { id: imageId, deletedAt: null },
-    });
+    try {
+      return await this.prisma.productImage.findUnique({
+        where: { id: imageId, deletedAt: null },
+      });
+    } catch (e) {
+      console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   async deleteOneProductImage(imageId: number) {
-    const deletedAt = new Date();
-    return await this.prisma.productImage.update({
-      where: { id: imageId },
-      data: { deletedAt: deletedAt.toISOString() },
-    });
+    try {
+      const deletedAt = new Date();
+      return await this.prisma.productImage.update({
+        where: { id: imageId },
+        data: { deletedAt: deletedAt.toISOString() },
+      });
+    } catch (e) {
+      console.log(e);
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
+    }
   }
 }

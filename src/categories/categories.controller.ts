@@ -8,10 +8,11 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { CategoriesService } from "./categories.service";
 import { AuthGuard } from "../auth/auth.guard";
-import { QueryParamDto } from "./dto/query-param.dto";
 import { CheckIdParamPipe } from "../pipes/check-id-param-pipe.service";
+import { CategoriesService } from "./categories.service";
+import { CreateCategoryDto } from "./dto/create-category.dto";
+import { QueryParamDto } from "./dto/query-param.dto";
 
 @Controller("categories")
 export class CategoriesController {
@@ -19,7 +20,7 @@ export class CategoriesController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createCategoryDto: any) {
+  create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
 

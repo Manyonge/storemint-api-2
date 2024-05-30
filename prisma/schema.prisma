@@ -52,9 +52,8 @@ model Retailer {
   businessName      String?             @unique
   businessEmail     String              @unique
   businessLogo      String?
-  passportPhoto     String?
   businessInstagram String?
-  nationalId        String?
+  isActivated       Boolean?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @default(now())
   deletedAt         DateTime?

@@ -5,60 +5,30 @@ import {
   Get,
   Param,
   Patch,
-  Post,
   Req,
-  UploadedFiles,
   UseGuards,
-  UseInterceptors
 } from "@nestjs/common";
-import { RetailersService } from "./retailers.service";
-import { FileFieldsInterceptor } from "@nestjs/platform-express";
-import { Express, Request } from "express";
+import { CheckIdParamPipe } from "src/pipes/check-id-param-pipe.service";
 import { AuthGuard } from "../auth/auth.guard";
+import { QueryParamDto } from "./dto/query-params.dto";
+import { RetailersService } from "./retailers.service";
 
 @Controller("retailers")
 export class RetailersController {
   constructor(private readonly retailersService: RetailersService) {}
-  @UseGuards(AuthGuard)
-  @Post()
-  @UseInterceptors(
-    FileFieldsInterceptor([
-      {
-        name: "businessLogo",
-        maxCount: 1,
-      },
-      {
-        name: "passportPhoto",
-        maxCount: 1,
-      },
-    ]),
-  )
-  create(
-    @Body() createRetailerDto: any,
-    @UploadedFiles()
-    files: {
-      businessLogo?: Express.Multer.File[];
-      passportPhoto?: Express.Multer.File[];
-    },
-  ) {
-    return this.retailersService.signUpWithEmail(createRetailerDto, files);
-  }
 
   @Get()
-  findAll(@Req() req: Request) {
-    return this.retailersService.findAll(req);
+  findAll(@Req() queryParamDto: QueryParamDto) {
+    return this.retailersService.findAll(queryParamDto);
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
+  findOne(@Param("id", new CheckIdParamPipe()) id: string) {
     return this.retailersService.findById(+id);
   }
   @UseGuards(AuthGuard)
   @Patch(":id")
-  update(
-    @Param("id") id: string,
-    @Body() updateRetailerDto: any,
-  ) {
+  update(@Param("id") id: string, @Body() updateRetailerDto: any) {
     return this.retailersService.update(+id, updateRetailerDto);
   }
 

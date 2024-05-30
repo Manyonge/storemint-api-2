@@ -1,29 +1,36 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { CreateCategoryDto } from "./dto/create-category.dto";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { PrismaService } from "nestjs-prisma";
+import { CreateCategoryDto } from "./dto/create-category.dto";
 
 @Injectable()
 export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
   async create(createCategoryDto: CreateCategoryDto) {
-    const categoryExists = await this.prisma.category.findUnique({
-      where: {
-        category: createCategoryDto.category,
-        retailerId: createCategoryDto.retailerId,
-        deletedAt: null,
-      },
-    });
-    if (categoryExists) {
-      throw new BadRequestException("Category already exists");
-    }
     try {
+      const category = await this.prisma.category.findUnique({
+        where: {
+          category: createCategoryDto.category,
+          retailerId: createCategoryDto.retailerId,
+          deletedAt: null,
+        },
+      });
+      if (category) {
+        throw new BadRequestException("Category already exists");
+      }
       return await this.prisma.category.create({
         data: createCategoryDto,
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
@@ -35,7 +42,7 @@ export class CategoriesService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      throw new InternalServerErrorException();
     }
   }
 
@@ -46,18 +53,18 @@ export class CategoriesService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      throw new InternalServerErrorException();
     }
   }
 
   async remove(id: number) {
-    const category = await this.prisma.category.findUnique({
-      where: { id, deletedAt: null },
-    });
-    if (!category) {
-      throw new BadRequestException("category not found");
-    }
     try {
+      const category = await this.prisma.category.findUnique({
+        where: { id, deletedAt: null },
+      });
+      if (!category) {
+        throw new BadRequestException("category not found");
+      }
       const deletedAt = new Date();
       return await this.prisma.category.update({
         where: { id },
@@ -65,7 +72,10 @@ export class CategoriesService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 }
