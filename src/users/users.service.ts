@@ -52,6 +52,7 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: {
         email,
+        deletedAt: null,
       },
     });
     return !!user;
@@ -59,13 +60,13 @@ export class UsersService {
 
   async findByEmailProvider(email: string): Promise<any> {
     return await this.prisma.user.findUnique({
-      where: { email, provider: ProviderEnum.EMAIL },
+      where: { email, provider: ProviderEnum.EMAIL, deletedAt: null },
     });
   }
 
   async findByGoogleProvider(email: string): Promise<any> {
     return await this.prisma.user.findUnique({
-      where: { email, provider: ProviderEnum.GOOGLE },
+      where: { email, provider: ProviderEnum.GOOGLE, deletedAt: null },
     });
   }
 }

@@ -37,6 +37,7 @@ export class AuthService {
       const user = await this.prisma.user.findFirst({
         where: {
           email: loginDto.email,
+          deletedAt: null,
         },
       });
 
@@ -113,6 +114,7 @@ export class AuthService {
       const email = await this.prisma.user.findFirst({
         where: {
           email: createAuthEmailDto.businessEmail,
+          deletedAt: null,
         },
       });
 
