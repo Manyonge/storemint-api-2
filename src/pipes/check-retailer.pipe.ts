@@ -15,8 +15,8 @@ export class CheckRetailerPipe implements PipeTransform {
             "retailerId must be a whole number greater than 0",
           );
         }
-        const retailer = await this.prisma.retailer.findUnique({
-          where: { id: Number(retailerId) },
+        const retailer = await this.prisma.retailer.findFirst({
+          where: { id: Number(retailerId), deletedAt: null },
         });
 
         if (!retailer) {

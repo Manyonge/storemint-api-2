@@ -55,6 +55,7 @@ export class AuthService {
       let retailer = await this.prisma.retailer.findUnique({
         where: {
           uid: user.uid,
+          deletedAt: null,
         },
       });
       const staff = await this.prisma.staff.findFirst({
@@ -69,6 +70,7 @@ export class AuthService {
         retailer = await this.prisma.retailer.findUnique({
           where: {
             id: staff.retailerId,
+            deletedAt: null,
           },
         });
         retailerId = staff.retailerId;
@@ -125,6 +127,7 @@ export class AuthService {
       const foundRetailer = await this.prisma.retailer.findFirst({
         where: {
           businessName: createAuthEmailDto.businessName,
+          deletedAt: null,
         },
       });
       if (foundRetailer) {

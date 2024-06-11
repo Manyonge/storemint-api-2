@@ -85,7 +85,7 @@ export class StaffService {
     const staff = await this.prisma.staff.findUnique({ where: { id } });
     if (!staff) throw new BadRequestException("staff not found");
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findFirst({
         where: {
           uid: staff.uid,
           deletedAt: null,

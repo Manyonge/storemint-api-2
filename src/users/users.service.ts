@@ -49,7 +49,7 @@ export class UsersService {
     return bcrypt.compare(plainTextPassword, hashedPassword);
   }
   async isEmailExistent(email: string) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: {
         email,
         deletedAt: null,
@@ -59,13 +59,13 @@ export class UsersService {
   }
 
   async findByEmailProvider(email: string): Promise<any> {
-    return await this.prisma.user.findUnique({
+    return await this.prisma.user.findFirst({
       where: { email, provider: ProviderEnum.EMAIL, deletedAt: null },
     });
   }
 
   async findByGoogleProvider(email: string): Promise<any> {
-    return await this.prisma.user.findUnique({
+    return await this.prisma.user.findFirst({
       where: { email, provider: ProviderEnum.GOOGLE, deletedAt: null },
     });
   }
