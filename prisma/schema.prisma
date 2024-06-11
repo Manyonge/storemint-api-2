@@ -11,7 +11,7 @@ generator client {
 
 model User {
   uid         Int       @id @default(autoincrement())
-  email       String    @unique
+  email       String
   phoneNumber String?
   name        String
   hash        String?
@@ -50,8 +50,8 @@ enum OrderState {
 model Retailer {
   id                Int                 @id @default(autoincrement())
   uid               Int                 @unique
-  businessName      String?             @unique
-  businessEmail     String              @unique
+  businessName      String?
+  businessEmail     String
   businessLogo      String?
   businessInstagram String?
   isActivated       Boolean?
