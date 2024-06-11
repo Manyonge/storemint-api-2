@@ -163,8 +163,6 @@ export class AuthService {
         },
       });
 
-      await this.ewalletService.create(foundRetailer.id);
-
       const accessToken = await this.generateAccessToken(user.uid);
 
       return { accessToken, retailer: retailer };
