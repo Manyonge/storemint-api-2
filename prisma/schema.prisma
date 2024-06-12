@@ -108,7 +108,7 @@ model StoreProduct {
 
 model Category {
   id               Int       @id @default(autoincrement())
-  category         String    @unique
+  category         String    
   retailerId       Int
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -120,7 +120,7 @@ model Category {
 
 model Size {
   id               Int       @id @default(autoincrement())
-  size             String    @unique
+  size             String
   retailerId       Int
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -132,7 +132,7 @@ model Size {
 
 model Condition {
   id               Int       @id @default(autoincrement())
-  condition        String    @unique
+  condition        String
   retailerId       Int
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
