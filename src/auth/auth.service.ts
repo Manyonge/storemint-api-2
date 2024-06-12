@@ -16,6 +16,7 @@ import { UsersService } from "../users/users.service";
 import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
 import { LoginDto } from "./dto/login.dto";
 import { TokenEntity } from "./entities/token.entity";
+import { handleError } from "../helpers";
 
 dotenv.config();
 
@@ -172,11 +173,7 @@ export class AuthService {
 
       return { accessToken, retailer: retailer };
     } catch (e: any) {
-      console.log(e);
-      if (e instanceof BadRequestException) {
-        throw e;
-      }
-      throw new InternalServerErrorException("internal server error");
+      handleError(e);
     }
   }
 
