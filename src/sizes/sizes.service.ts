@@ -1,28 +1,35 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { CreateSizeDto } from "./dto/create-size.dto";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { PrismaService } from "nestjs-prisma";
+import { CreateSizeDto } from "./dto/create-size.dto";
 
 @Injectable()
 export class SizesService {
   constructor(private prisma: PrismaService) {}
   async create(createSizeDto: CreateSizeDto) {
-    const sizeExists = await this.prisma.size.findUnique({
-      where: {
-        size: createSizeDto.size,
-        retailerId: createSizeDto.retailerId,
-        deletedAt: null,
-      },
-    });
-    if (sizeExists) {
-      throw new BadRequestException("size already exists");
-    }
     try {
+      const sizeExists = await this.prisma.size.findFirst({
+        where: {
+          size: createSizeDto.size,
+          retailerId: createSizeDto.retailerId,
+          deletedAt: null,
+        },
+      });
+      if (sizeExists) {
+        throw new BadRequestException("size already exists");
+      }
       return await this.prisma.size.create({
         data: createSizeDto,
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
@@ -34,7 +41,10 @@ export class SizesService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
@@ -45,18 +55,21 @@ export class SizesService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
   async remove(id: number) {
-    const size = await this.prisma.size.findUnique({
-      where: { id, deletedAt: null },
-    });
-    if (!size) {
-      throw new BadRequestException("size not found");
-    }
     try {
+      const size = await this.prisma.size.findUnique({
+        where: { id, deletedAt: null },
+      });
+      if (!size) {
+        throw new BadRequestException("size not found");
+      }
       const deletedAt = new Date();
       return await this.prisma.size.update({
         where: { id },
@@ -66,7 +79,10 @@ export class SizesService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 }

@@ -11,14 +11,15 @@ generator client {
 
 model User {
   uid         Int       @id @default(autoincrement())
-  email       String    @unique
+  email       String
   phoneNumber String?
   name        String
   hash        String?
   role        Role
   provider    Provider
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? @db.Timestamp(6)
   retailer    Retailer?
 }
 
@@ -49,15 +50,15 @@ enum OrderState {
 model Retailer {
   id                Int                 @id @default(autoincrement())
   uid               Int                 @unique
-  businessName      String?             @unique
-  businessEmail     String              @unique
+  businessName      String?
+  businessEmail     String
   businessLogo      String?
-  passportPhoto     String?
   businessInstagram String?
-  nationalId        String?
+  businessPhone     String?
+  isActivated       Boolean?
   createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now())
-  deletedAt         DateTime?
+  updatedAt         DateTime            @updatedAt
+  deletedAt         DateTime?           @db.Timestamp(6)
   ewallet           Ewallet?
   userRelation      User                @relation(fields: [uid], references: [uid], onDelete: Cascade)
   Product           StoreProduct[]
@@ -75,7 +76,7 @@ model Ewallet {
   retailerId       Int      @unique
   balance          Int
   createdAt        DateTime @default(now())
-  updatedAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
   retailerRelation Retailer @relation(fields: [retailerId], references: [id], onDelete: Cascade)
 }
 
@@ -97,8 +98,8 @@ model StoreProduct {
   size              String
   condition         String
   createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now())
-  deletedAt         DateTime?
+  updatedAt         DateTime            @updatedAt
+  deletedAt         DateTime?           @db.Timestamp(6)
   retailerRelation  Retailer            @relation(fields: [retailerId], references: [id], onDelete: Cascade)
   images            ProductImage[]
   OrderStoreProduct OrderStoreProduct[]
@@ -108,11 +109,11 @@ model StoreProduct {
 
 model Category {
   id               Int       @id @default(autoincrement())
-  category         String    @unique
+  category         String
   retailerId       Int
   createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now())
-  deletedAt        DateTime?
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime? @db.Timestamp(6)
   retailerRelation Retailer  @relation(fields: [retailerId], references: [id])
 
   @@index([retailerId])
@@ -120,11 +121,11 @@ model Category {
 
 model Size {
   id               Int       @id @default(autoincrement())
-  size             String    @unique
+  size             String
   retailerId       Int
   createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now())
-  deletedAt        DateTime?
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime? @db.Timestamp(6)
   retailerRelation Retailer  @relation(fields: [retailerId], references: [id])
 
   @@index([retailerId])
@@ -132,11 +133,11 @@ model Size {
 
 model Condition {
   id               Int       @id @default(autoincrement())
-  condition        String    @unique
+  condition        String
   retailerId       Int
   createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @default(now())
-  deletedAt        DateTime?
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime? @db.Timestamp(6)
   retailerRelation Retailer  @relation(fields: [retailerId], references: [id])
 
   @@index([retailerId])
@@ -149,8 +150,8 @@ model ProductImage {
   position        Int
   productId       Int
   createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @default(now())
-  deletedAt       DateTime?
+  updatedAt       DateTime     @updatedAt
+  deletedAt       DateTime?    @db.Timestamp(6)
   productRelation StoreProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId])
@@ -164,8 +165,8 @@ model Customer {
   instagramHandle   String?
   retailerId        Int
   createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @default(now())
-  deletedAt         DateTime?
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime? @db.Timestamp(6)
   retailersRelation Retailer  @relation(fields: [retailerId], references: [id], onDelete: Cascade)
 
   @@index([retailerId])
@@ -196,8 +197,8 @@ model Staff {
   email             String
   retailerId        Int
   createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @default(now())
-  deletedAt         DateTime?
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime? @db.Timestamp(6)
   retailersRelation Retailer  @relation(fields: [retailerId], references: [id], onDelete: Cascade)
 
   @@index([retailerId])
@@ -206,8 +207,8 @@ model Staff {
 model Order {
   id                  Int                 @id @default(autoincrement())
   createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @default(now())
-  deletedAt           DateTime?
+  updatedAt           DateTime            @updatedAt
+  deletedAt           DateTime?           @db.Timestamp(6)
   retailerId          Int
   type                OrderType
   state               OrderState?
@@ -230,8 +231,8 @@ model Order {
 model OrderStoreProduct {
   id         Int          @id @default(autoincrement())
   createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @default(now())
-  deletedAt  DateTime?
+  updatedAt  DateTime     @updatedAt
+  deletedAt  DateTime?    @db.Timestamp(6)
   orderId    Int
   productId  Int
   retailerId Int

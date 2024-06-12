@@ -11,15 +11,16 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
-  ValidationPipe
+  ValidationPipe,
 } from "@nestjs/common";
-import { ProductsService } from "./products.service";
-import { AuthGuard } from "../auth/auth.guard";
-import { QueryParamDto } from "./dto/query-param.dto";
 import { AnyFilesInterceptor } from "@nestjs/platform-express";
-import { UploadedFilesDto } from "./dto/uploaded-files.dto";
-import { CreateImageParamDto } from "./dto/create-image-param.dto";
 import { Request } from "express";
+import { AuthGuard } from "../auth/auth.guard";
+import { CreateImageParamDto } from "./dto/create-image-param.dto";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { QueryParamDto } from "./dto/query-param.dto";
+import { UploadedFilesDto } from "./dto/uploaded-files.dto";
+import { ProductsService } from "./products.service";
 
 @Controller("products")
 export class ProductsController {
@@ -27,7 +28,7 @@ export class ProductsController {
 
   @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() createProductDto: any) {
+  async create(@Body() createProductDto: CreateProductDto) {
     return await this.productsService.create(createProductDto);
   }
 

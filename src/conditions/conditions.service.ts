@@ -1,29 +1,36 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { CreateConditionDto } from "./dto/create-condition.dto";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { PrismaService } from "nestjs-prisma";
+import { CreateConditionDto } from "./dto/create-condition.dto";
 
 @Injectable()
 export class ConditionsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createConditionDto: CreateConditionDto) {
-    const conditionExists = await this.prisma.condition.findUnique({
-      where: {
-        retailerId: createConditionDto.retailerId,
-        condition: createConditionDto.condition,
-        deletedAt: null,
-      },
-    });
-    if (conditionExists) {
-      throw new BadRequestException("Condition already exists");
-    }
     try {
+      const conditionExists = await this.prisma.condition.findFirst({
+        where: {
+          retailerId: createConditionDto.retailerId,
+          condition: createConditionDto.condition,
+          deletedAt: null,
+        },
+      });
+      if (conditionExists) {
+        throw new BadRequestException("Condition already exists");
+      }
       return await this.prisma.condition.create({
         data: createConditionDto,
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
@@ -35,7 +42,10 @@ export class ConditionsService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
@@ -46,18 +56,21 @@ export class ConditionsService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 
   async remove(id: number) {
-    const condition = await this.prisma.condition.findUnique({
-      where: { id, deletedAt: null },
-    });
-    if (!condition) {
-      throw new BadRequestException("condition not found");
-    }
     try {
+      const condition = await this.prisma.condition.findUnique({
+        where: { id, deletedAt: null },
+      });
+      if (!condition) {
+        throw new BadRequestException("condition not found");
+      }
       const deletedAt = new Date();
       return await this.prisma.condition.update({
         where: { id },
@@ -65,7 +78,10 @@ export class ConditionsService {
       });
     } catch (e) {
       console.log(e);
-      throw new BadRequestException("Operation failed!");
+      if (e instanceof BadRequestException) {
+        throw e;
+      }
+      throw new InternalServerErrorException();
     }
   }
 }

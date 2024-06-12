@@ -1,3 +1,7 @@
+import { IsOptional, IsString } from "class-validator";
+
 export class QueryParamDto {
-  businessName?: string;
+  @IsOptional()
+  @IsString()
+  businessName: string;
 }
