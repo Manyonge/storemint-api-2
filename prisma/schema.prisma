@@ -108,7 +108,7 @@ model StoreProduct {
 
 model Category {
   id               Int       @id @default(autoincrement())
-  category         String    
+  category         String
   retailerId       Int
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
