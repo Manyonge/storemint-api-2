@@ -20,7 +20,7 @@ export class StaffService {
     }
     //check if user exists
     const user = await this.prisma.user.findFirst({
-      where: { email: createStaffDto.email },
+      where: { email: createStaffDto.email, deletedAt: null },
     });
     if (!!user) throw new BadRequestException("staff member already exists!");
     try {
@@ -85,9 +85,10 @@ export class StaffService {
     const staff = await this.prisma.staff.findUnique({ where: { id } });
     if (!staff) throw new BadRequestException("staff not found");
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findFirst({
         where: {
           uid: staff.uid,
+          deletedAt: null,
         },
       });
       await this.prisma.staff.delete({ where: { id } });

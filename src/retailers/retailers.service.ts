@@ -20,11 +20,20 @@ export class RetailersService {
       const businessName = queryParamDto.businessName;
 
       if (businessName) {
-        return await this.prisma.retailer.findUnique({
-          where: { businessName: businessName as string },
+        return await this.prisma.retailer.findFirst({
+          where: {
+            businessName: businessName as string,
+            deletedAt: null,
+            isActivated: true,
+          },
         });
       }
-      return await this.prisma.retailer.findMany();
+      return await this.prisma.retailer.findMany({
+        where: {
+          isActivated: true,
+          deletedAt: null,
+        },
+      });
     } catch (e: any) {
       console.log(e);
       throw new InternalServerErrorException();
@@ -33,15 +42,9 @@ export class RetailersService {
 
   async findById(id: number) {
     try {
-      return await this.prisma.retailer.findUnique({ where: { id } });
-    } catch (e: any) {
-      console.log(e);
-      throw new InternalServerErrorException();
-    }
-  }
-  async findByUid(uid: number) {
-    try {
-      return await this.prisma.retailer.findUnique({ where: { uid } });
+      return await this.prisma.retailer.findUnique({
+        where: { id, deletedAt: null },
+      });
     } catch (e: any) {
       console.log(e);
       throw new InternalServerErrorException();

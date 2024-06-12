@@ -12,7 +12,7 @@ export class CategoriesService {
 
   async create(createCategoryDto: CreateCategoryDto) {
     try {
-      const category = await this.prisma.category.findUnique({
+      const category = await this.prisma.category.findFirst({
         where: {
           category: createCategoryDto.category,
           retailerId: createCategoryDto.retailerId,

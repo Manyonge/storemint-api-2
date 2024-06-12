@@ -11,7 +11,7 @@ export class SizesService {
   constructor(private prisma: PrismaService) {}
   async create(createSizeDto: CreateSizeDto) {
     try {
-      const sizeExists = await this.prisma.size.findUnique({
+      const sizeExists = await this.prisma.size.findFirst({
         where: {
           size: createSizeDto.size,
           retailerId: createSizeDto.retailerId,

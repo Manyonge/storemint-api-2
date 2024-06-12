@@ -16,6 +16,7 @@ import { UsersService } from "../users/users.service";
 import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
 import { LoginDto } from "./dto/login.dto";
 import { TokenEntity } from "./entities/token.entity";
+import { handleError } from "../helpers";
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ export class AuthService {
       const user = await this.prisma.user.findFirst({
         where: {
           email: loginDto.email,
+          deletedAt: null,
         },
       });
 
@@ -54,6 +56,7 @@ export class AuthService {
       let retailer = await this.prisma.retailer.findUnique({
         where: {
           uid: user.uid,
+          deletedAt: null,
         },
       });
       const staff = await this.prisma.staff.findFirst({
@@ -68,6 +71,7 @@ export class AuthService {
         retailer = await this.prisma.retailer.findUnique({
           where: {
             id: staff.retailerId,
+            deletedAt: null,
           },
         });
         retailerId = staff.retailerId;
@@ -113,6 +117,7 @@ export class AuthService {
       const email = await this.prisma.user.findFirst({
         where: {
           email: createAuthEmailDto.businessEmail,
+          deletedAt: null,
         },
       });
 
@@ -123,6 +128,7 @@ export class AuthService {
       const foundRetailer = await this.prisma.retailer.findFirst({
         where: {
           businessName: createAuthEmailDto.businessName,
+          deletedAt: null,
         },
       });
       if (foundRetailer) {
@@ -160,20 +166,15 @@ export class AuthService {
           businessEmail: createAuthEmailDto.businessEmail,
           businessLogo: logoPublic,
           businessInstagram: createAuthEmailDto.businessInstagram,
+          businessPhone: createAuthEmailDto.businessPhone,
         },
       });
-
-      await this.ewalletService.create(foundRetailer.id);
 
       const accessToken = await this.generateAccessToken(user.uid);
 
       return { accessToken, retailer: retailer };
     } catch (e: any) {
-      console.log(e);
-      if (e instanceof BadRequestException) {
-        throw e;
-      }
-      throw new InternalServerErrorException("internal server error");
+      handleError(e);
     }
   }
 

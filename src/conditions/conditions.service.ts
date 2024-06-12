@@ -12,7 +12,7 @@ export class ConditionsService {
 
   async create(createConditionDto: CreateConditionDto) {
     try {
-      const conditionExists = await this.prisma.condition.findUnique({
+      const conditionExists = await this.prisma.condition.findFirst({
         where: {
           retailerId: createConditionDto.retailerId,
           condition: createConditionDto.condition,

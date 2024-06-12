@@ -42,11 +42,14 @@ export class AppPipe implements PipeTransform {
         "retailerId must be a whole number greater than 0",
       );
     }
-    const retailer = await this.prisma.retailer.findUnique({
+    const retailer = await this.prisma.retailer.findFirst({
       where: { id: Number(retailerId), deletedAt: null },
     });
     if (!retailer) {
       throw new BadRequestException("Retailer not found");
+    }
+    if (!retailer.isActivated) {
+      throw new BadRequestException("Retailer account deactivated");
     }
     return value;
   }
