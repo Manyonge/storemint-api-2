@@ -54,6 +54,7 @@ model Retailer {
   businessEmail     String
   businessLogo      String?
   businessInstagram String?
+  businessPhone     String?
   isActivated       Boolean?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
