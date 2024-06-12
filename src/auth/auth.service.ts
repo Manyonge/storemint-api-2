@@ -166,6 +166,7 @@ export class AuthService {
           businessEmail: createAuthEmailDto.businessEmail,
           businessLogo: logoPublic,
           businessInstagram: createAuthEmailDto.businessInstagram,
+          businessPhone: createAuthEmailDto.businessPhone,
         },
       });
 
