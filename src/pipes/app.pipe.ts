@@ -48,6 +48,9 @@ export class AppPipe implements PipeTransform {
     if (!retailer) {
       throw new BadRequestException("Retailer not found");
     }
+    if (!retailer.isActivated) {
+      throw new BadRequestException("Retailer account deactivated");
+    }
     return value;
   }
   async checkProductId(value: any) {

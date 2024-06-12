@@ -21,11 +21,16 @@ export class RetailersService {
 
       if (businessName) {
         return await this.prisma.retailer.findFirst({
-          where: { businessName: businessName as string, deletedAt: null },
+          where: {
+            businessName: businessName as string,
+            deletedAt: null,
+            isActivated: true,
+          },
         });
       }
       return await this.prisma.retailer.findMany({
         where: {
+          isActivated: true,
           deletedAt: null,
         },
       });
@@ -37,18 +42,8 @@ export class RetailersService {
 
   async findById(id: number) {
     try {
-      return await this.prisma.retailer.findFirst({
+      return await this.prisma.retailer.findUnique({
         where: { id, deletedAt: null },
-      });
-    } catch (e: any) {
-      console.log(e);
-      throw new InternalServerErrorException();
-    }
-  }
-  async findByUid(uid: number) {
-    try {
-      return await this.prisma.retailer.findFirst({
-        where: { uid, deletedAt: null },
       });
     } catch (e: any) {
       console.log(e);

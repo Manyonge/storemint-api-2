@@ -22,6 +22,9 @@ export class CheckRetailerPipe implements PipeTransform {
         if (!retailer) {
           throw new BadRequestException("Retailer not found");
         }
+        if (!retailer.isActivated) {
+          throw new BadRequestException("Retailer account deactivated");
+        }
       }
       return value;
     } catch (e) {
