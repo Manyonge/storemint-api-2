@@ -184,10 +184,10 @@ export class AuthService {
       const timestamp = currentDate.getTime();
       const iat = Math.floor(timestamp / 1000);
       const date = new Date(timestamp);
-      date.setDate(date.getDate() + 7);
+      date.setHours(date.getHours() + 1);
       const newTimestamp = date.getTime();
       const exp = Math.floor(newTimestamp / 1000);
-      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "7d" };
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1h" };
       return await this.jwtService.signAsync(payload);
     } catch (e) {
       if (e instanceof BadRequestException) {
@@ -203,13 +203,14 @@ export class AuthService {
       const timestamp = currentDate.getTime();
       const iat = Math.floor(timestamp / 1000);
       const date = new Date(timestamp);
-      date.setDate(date.getDate() + 7);
+      date.setMonth(date.getMonth() + 1);
       const newTimestamp = date.getTime();
       const exp = Math.floor(newTimestamp / 1000);
-      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "180d" };
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "30d" };
       const token = await this.jwtService.signAsync(payload);
       //record in database
-      await this.prisma.refreshToken.create({ data: { token } });
+      const hashedToken = await this.usersService.hashPassword(token);
+      await this.prisma.refreshToken.create({ data: { token: hashedToken } });
       return token;
     } catch (e) {
       if (e instanceof BadRequestException) {
