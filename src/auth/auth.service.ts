@@ -256,6 +256,17 @@ export class AuthService {
       try {
         const payload = await this.jwtService.verifyAsync(receivedRefreshToken);
         const record = await this.findRefreshToken(receivedRefreshToken);
+
+        //check if token's expired
+        const createAt = new Date(record.createdAt);
+        const now = new Date();
+        if (
+          now.getFullYear() > createAt.getFullYear() ||
+          now.getMonth() > createAt.getMonth()
+        ) {
+          throw new UnauthorizedException();
+        }
+
         if (record && payload) {
           const newRefreshToken = await this.generateRefreshToken(payload.sub);
           const newAccessToken = await this.generateAccessToken(payload.sub);
