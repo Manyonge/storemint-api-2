@@ -184,10 +184,10 @@ export class AuthService {
       const timestamp = currentDate.getTime();
       const iat = Math.floor(timestamp / 1000);
       const date = new Date(timestamp);
-      date.setDate(date.getDate() + 7);
+      date.setHours(date.getHours() + 1);
       const newTimestamp = date.getTime();
       const exp = Math.floor(newTimestamp / 1000);
-      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "7d" };
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1h" };
       return await this.jwtService.signAsync(payload);
     } catch (e) {
       if (e instanceof BadRequestException) {
@@ -203,13 +203,15 @@ export class AuthService {
       const timestamp = currentDate.getTime();
       const iat = Math.floor(timestamp / 1000);
       const date = new Date(timestamp);
-      date.setDate(date.getDate() + 7);
+      date.setMonth(date.getMonth() + 1);
       const newTimestamp = date.getTime();
       const exp = Math.floor(newTimestamp / 1000);
-      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "180d" };
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "30d" };
       const token = await this.jwtService.signAsync(payload);
       //record in database
-      await this.prisma.refreshToken.create({ data: { token } });
+      //hashToken
+      const hashedToken = await this.usersService.hashPassword(token);
+      await this.prisma.refreshToken.create({ data: { token: hashedToken } });
       return token;
     } catch (e) {
       if (e instanceof BadRequestException) {
@@ -220,7 +222,10 @@ export class AuthService {
   }
   async findRefreshToken(token: string) {
     try {
-      return await this.prisma.refreshToken.findFirst({ where: { token } });
+      const hashedToken = await this.usersService.hashPassword(token);
+      return await this.prisma.refreshToken.findFirst({
+        where: { token: hashedToken },
+      });
     } catch (e) {
       if (e instanceof BadRequestException) {
         throw e;
@@ -232,7 +237,7 @@ export class AuthService {
   async deleteRefreshToken(oldToken: string) {
     const token = await this.findRefreshToken(oldToken);
     if (token) {
-      return await this.prisma.refreshToken.delete({ where: { id: token.id } });
+      return this.prisma.refreshToken.delete({ where: { id: token.id } });
     }
     return null;
   }
@@ -251,6 +256,17 @@ export class AuthService {
       try {
         const payload = await this.jwtService.verifyAsync(receivedRefreshToken);
         const record = await this.findRefreshToken(receivedRefreshToken);
+
+        //check if token's expired
+        const createAt = new Date(record.createdAt);
+        const now = new Date();
+        if (
+          now.getFullYear() > createAt.getFullYear() ||
+          now.getMonth() > createAt.getMonth()
+        ) {
+          throw new UnauthorizedException();
+        }
+
         if (record && payload) {
           const newRefreshToken = await this.generateRefreshToken(payload.sub);
           const newAccessToken = await this.generateAccessToken(payload.sub);
