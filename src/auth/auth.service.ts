@@ -209,6 +209,7 @@ export class AuthService {
       const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "30d" };
       const token = await this.jwtService.signAsync(payload);
       //record in database
+      //hashToken
       const hashedToken = await this.usersService.hashPassword(token);
       await this.prisma.refreshToken.create({ data: { token: hashedToken } });
       return token;
@@ -221,7 +222,10 @@ export class AuthService {
   }
   async findRefreshToken(token: string) {
     try {
-      return await this.prisma.refreshToken.findFirst({ where: { token } });
+      const hashedToken = await this.usersService.hashPassword(token);
+      return await this.prisma.refreshToken.findFirst({
+        where: { token: hashedToken },
+      });
     } catch (e) {
       if (e instanceof BadRequestException) {
         throw e;
@@ -233,7 +237,7 @@ export class AuthService {
   async deleteRefreshToken(oldToken: string) {
     const token = await this.findRefreshToken(oldToken);
     if (token) {
-      return await this.prisma.refreshToken.delete({ where: { id: token.id } });
+      return this.prisma.refreshToken.delete({ where: { id: token.id } });
     }
     return null;
   }
