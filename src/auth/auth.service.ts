@@ -113,6 +113,11 @@ export class AuthService {
     },
   ) {
     try {
+      //enforce business logo
+
+      if (!files) {
+        throw new BadRequestException("business logo is required");
+      }
       //is email and business name new
       const email = await this.prisma.user.findFirst({
         where: {
