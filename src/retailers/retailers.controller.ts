@@ -8,10 +8,10 @@ import {
   Req,
   UseGuards,
 } from "@nestjs/common";
-import { CheckIdParamPipe } from "src/pipes/check-id-param-pipe.service";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-params.dto";
 import { RetailersService } from "./retailers.service";
+import { CheckIdParamPipe } from "../pipes/check-id-param-pipe.service";
 
 @Controller("retailers")
 export class RetailersController {
