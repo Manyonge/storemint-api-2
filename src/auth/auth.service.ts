@@ -114,30 +114,9 @@ export class AuthService {
   ) {
     try {
       //enforce business logo
-
+      console.log({ files });
       if (!files) {
         throw new BadRequestException("business logo is required");
-      }
-      //is email and business name new
-      const email = await this.prisma.user.findFirst({
-        where: {
-          email: createAuthEmailDto.businessEmail,
-          deletedAt: null,
-        },
-      });
-
-      if (email) {
-        throw new BadRequestException("email is already in use");
-      }
-
-      const foundRetailer = await this.prisma.retailer.findFirst({
-        where: {
-          businessName: createAuthEmailDto.businessName,
-          deletedAt: null,
-        },
-      });
-      if (foundRetailer) {
-        throw new BadRequestException("business name is already in use");
       }
 
       if (createAuthEmailDto.password !== createAuthEmailDto.confirmPassword) {
