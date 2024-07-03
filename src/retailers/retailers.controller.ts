@@ -4,9 +4,9 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
+  Patch, Query,
   Req,
-  UseGuards,
+  UseGuards
 } from "@nestjs/common";
 import { AuthGuard } from "../auth/auth.guard";
 import { QueryParamDto } from "./dto/query-params.dto";
@@ -18,7 +18,7 @@ export class RetailersController {
   constructor(private readonly retailersService: RetailersService) {}
 
   @Get()
-  findAll(@Req() queryParamDto: QueryParamDto) {
+  findAll(@Query() queryParamDto: QueryParamDto) {
     return this.retailersService.findAll(queryParamDto);
   }
 
