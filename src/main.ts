@@ -18,7 +18,7 @@ async function bootstrap() {
       "http://localhost:5174",
       "https://dripventory.storemint.shop",
       "https://staging1.storemint.shop",
-      "https://storemint.shop",
+      "https://*.storemint.shop",
       "*.storemint.shop",
     ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
