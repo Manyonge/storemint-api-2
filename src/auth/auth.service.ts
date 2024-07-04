@@ -169,10 +169,10 @@ export class AuthService {
       const timestamp = currentDate.getTime();
       const iat = Math.floor(timestamp / 1000);
       const date = new Date(timestamp);
-      date.setHours(date.getHours() + 1);
+      date.setMonth(date.getMonth() + 1);
       const newTimestamp = date.getTime();
       const exp = Math.floor(newTimestamp / 1000);
-      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1h" };
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1m" };
       return await this.jwtService.signAsync(payload);
     } catch (e) {
       if (e instanceof BadRequestException) {
