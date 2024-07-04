@@ -15,6 +15,7 @@ model User {
   phoneNumber String?
   name        String
   hash        String?
+  isActivated   Boolean?
   role        Role
   provider    Provider
   createdAt   DateTime  @default(now())
