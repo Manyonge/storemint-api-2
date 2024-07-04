@@ -113,7 +113,6 @@ export class AuthService {
   ) {
     try {
       //enforce business logo
-      console.log({ files });
       if (!files || !files?.businessLogo) {
         throw new BadRequestException("business logo is required");
       }
