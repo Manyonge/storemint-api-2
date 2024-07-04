@@ -17,6 +17,7 @@ import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
 import { LoginDto } from "./dto/login.dto";
 import { TokenEntity } from "./entities/token.entity";
 import { handleError } from "../helpers";
+import { CreateAuthEmailFilesDto } from "./dto/create-auth-email-files.dto";
 
 dotenv.config();
 
@@ -108,9 +109,7 @@ export class AuthService {
 
   async signUpWithEmail(
     createAuthEmailDto: CreateAuthEmailDto,
-    files: {
-      businessLogo?: Express.Multer.File[];
-    },
+    files: CreateAuthEmailFilesDto,
   ) {
     try {
       //enforce business logo

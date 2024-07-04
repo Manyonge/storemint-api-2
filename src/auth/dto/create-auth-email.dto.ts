@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, Matches } from "class-validator";
 
 export class CreateAuthEmailDto {
   @IsNotEmpty()
@@ -13,6 +13,10 @@ export class CreateAuthEmailDto {
   businessEmail: string;
   @IsNotEmpty()
   @IsString()
+  @Matches(/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/, {
+    message:
+      "business name can only have one word with no spaces, lowercase letters & '-' or '_'",
+  })
   businessName: string;
   @IsNotEmpty()
   @IsString()
