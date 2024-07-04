@@ -13,6 +13,7 @@ import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
 import { LoginDto } from "./dto/login.dto";
+import { CreateAuthEmailFilesDto } from "./dto/create-auth-email-files.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -30,9 +31,7 @@ export class AuthController {
   signUpWithEmail(
     @Body() createAuthEmailDto: CreateAuthEmailDto,
     @UploadedFiles()
-    files: {
-      businessLogo?: Express.Multer.File[];
-    },
+    files: CreateAuthEmailFilesDto,
   ) {
     return this.authService.signUpWithEmail(createAuthEmailDto, files);
   }
