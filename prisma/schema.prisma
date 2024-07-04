@@ -15,6 +15,7 @@ model User {
   phoneNumber String?
   name        String
   hash        String?
+  isActivated   Boolean?
   role        Role
   provider    Provider
   createdAt   DateTime  @default(now())
@@ -91,12 +92,14 @@ model StoreProduct {
   name              String
   description       String
   price             Int
+  salePrice         Int?
   stock             Int
   isHidden          Boolean
   retailerId        Int
-  category          String
-  size              String
-  condition         String
+  category          String?
+  size              String?
+  condition         String?
+  conditionRating   Int?
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   deletedAt         DateTime?           @db.Timestamp(6)
