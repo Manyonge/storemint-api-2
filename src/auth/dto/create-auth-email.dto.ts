@@ -15,7 +15,7 @@ export class CreateAuthEmailDto {
   @IsString()
   @Matches(/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/, {
     message:
-      "business name can only have one word with no spaces, lowercase letters & '-' or '_'",
+      "business name can only be one word with no spaces, have lowercase letters and '-' or '_'",
   })
   businessName: string;
   @IsNotEmpty()
