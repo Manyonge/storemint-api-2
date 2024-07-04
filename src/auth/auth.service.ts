@@ -40,12 +40,12 @@ export class AuthService {
         where: {
           email: loginDto.email,
           deletedAt: null,
-          isActivated: true,
         },
       });
 
-      if (!user) throw new BadRequestException("email not found");
-
+      if (user && !user.isActivated)
+        throw new BadRequestException("user not yet activated");
+      if (!user) throw new BadRequestException("user not found");
       const isPassCorrect = await this.usersService.comparePasswords(
         loginDto.password,
         user.hash,
