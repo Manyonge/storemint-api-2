@@ -18,7 +18,7 @@ export class RetailersService {
   async findAll(queryParamDto: QueryParamDto) {
     try {
       const businessName = queryParamDto.businessName;
-      console.log({businessName});
+      console.log({ businessName });
 
       if (businessName) {
         return await this.prisma.retailer.findFirst({
@@ -44,7 +44,7 @@ export class RetailersService {
   async findById(id: number) {
     try {
       return await this.prisma.retailer.findUnique({
-        where: { id, deletedAt: null },
+        where: { id, deletedAt: null, isActivated: true },
       });
     } catch (e: any) {
       console.log(e);

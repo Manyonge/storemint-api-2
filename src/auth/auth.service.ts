@@ -43,8 +43,9 @@ export class AuthService {
         },
       });
 
-      if (!user) throw new BadRequestException("email not found");
-
+      if (user && !user.isActivated)
+        throw new BadRequestException("user not yet activated");
+      if (!user) throw new BadRequestException("user not found");
       const isPassCorrect = await this.usersService.comparePasswords(
         loginDto.password,
         user.hash,
@@ -58,6 +59,7 @@ export class AuthService {
         where: {
           uid: user.uid,
           deletedAt: null,
+          isActivated: true,
         },
       });
       const staff = await this.prisma.staff.findFirst({
@@ -73,6 +75,7 @@ export class AuthService {
           where: {
             id: staff.retailerId,
             deletedAt: null,
+            isActivated: true,
           },
         });
         retailerId = staff.retailerId;

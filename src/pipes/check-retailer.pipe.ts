@@ -16,7 +16,7 @@ export class CheckRetailerPipe implements PipeTransform {
           );
         }
         const retailer = await this.prisma.retailer.findFirst({
-          where: { id: Number(retailerId), deletedAt: null },
+          where: { id: Number(retailerId), deletedAt: null, isActivated: true },
         });
 
         if (!retailer) {
