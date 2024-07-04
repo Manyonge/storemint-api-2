@@ -36,16 +36,37 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     try {
-      const user = await this.prisma.user.findFirst({
+      //confirm such an email exists
+      const email = await this.prisma.user.findFirst({
         where: {
           email: loginDto.email,
           deletedAt: null,
         },
       });
 
-      if (user && !user.isActivated)
+      if (!email) throw new BadRequestException("email not found");
+
+      //find an account where user is activated
+      const user = await this.prisma.user.findFirst({
+        where: {
+          email: loginDto.email,
+          isActivated: true,
+          deletedAt: null,
+        },
+      });
+      let activeRetailer = null;
+      if (user) {
+        activeRetailer = await this.prisma.retailer.findFirst({
+          where: {
+            deletedAt: null,
+            isActivated: true,
+            uid: user.uid,
+          },
+        });
+      }
+      if (!user || !activeRetailer)
         throw new BadRequestException("user not yet activated");
-      if (!user) throw new BadRequestException("user not found");
+
       const isPassCorrect = await this.usersService.comparePasswords(
         loginDto.password,
         user.hash,
@@ -79,10 +100,6 @@ export class AuthService {
           },
         });
         retailerId = staff.retailerId;
-      }
-
-      if (!retailer.isActivated) {
-        throw new BadRequestException("account not yet activated");
       }
 
       const accessToken = await this.generateAccessToken(user.uid);
