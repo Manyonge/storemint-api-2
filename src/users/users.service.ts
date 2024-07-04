@@ -53,6 +53,7 @@ export class UsersService {
       where: {
         email,
         deletedAt: null,
+        isActivated: true,
       },
     });
     return !!user;
@@ -66,7 +67,12 @@ export class UsersService {
 
   async findByGoogleProvider(email: string): Promise<any> {
     return await this.prisma.user.findFirst({
-      where: { email, provider: ProviderEnum.GOOGLE, deletedAt: null },
+      where: {
+        email,
+        provider: ProviderEnum.GOOGLE,
+        deletedAt: null,
+        isActivated: true,
+      },
     });
   }
 }

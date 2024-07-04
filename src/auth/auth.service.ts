@@ -40,6 +40,7 @@ export class AuthService {
         where: {
           email: loginDto.email,
           deletedAt: null,
+          isActivated: true,
         },
       });
 
@@ -58,6 +59,7 @@ export class AuthService {
         where: {
           uid: user.uid,
           deletedAt: null,
+          isActivated: true,
         },
       });
       const staff = await this.prisma.staff.findFirst({
@@ -73,6 +75,7 @@ export class AuthService {
           where: {
             id: staff.retailerId,
             deletedAt: null,
+            isActivated: true,
           },
         });
         retailerId = staff.retailerId;
