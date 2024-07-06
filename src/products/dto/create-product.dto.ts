@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -38,7 +39,6 @@ export class CreateProductDto {
   @IsString()
   condition?: string;
   @IsOptional()
-  @IsNumber()
-  @IsPositive()
+  @IsInt()
   conditionRating?: number;
 }
