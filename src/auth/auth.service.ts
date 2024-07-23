@@ -253,38 +253,42 @@ export class AuthService {
   }
 
   async refreshToken(req: Request, res: Response) {
-    const receivedRefreshToken = req.cookies["refreshToken"];
-    if (receivedRefreshToken) {
-      try {
-        const payload = await this.jwtService.verifyAsync(receivedRefreshToken);
-        const record = await this.findRefreshToken(receivedRefreshToken);
+    try {
+      const receivedRefreshToken = req.cookies["refreshToken"];
+      if (receivedRefreshToken) {
+        try {
+          const payload =
+            await this.jwtService.verifyAsync(receivedRefreshToken);
+          const record = await this.findRefreshToken(receivedRefreshToken);
 
-        //check if token's expired
-        const createAt = new Date(record.createdAt);
-        const now = new Date();
-        if (
-          now.getFullYear() > createAt.getFullYear() ||
-          now.getMonth() > createAt.getMonth()
-        ) {
+          //check if token's expired
+          const createAt = new Date(record.createdAt);
+          const now = new Date();
+          if (now.getTime() - createAt.getTime() >= 1000 * 3600 * 24 * 30) {
+            throw new UnauthorizedException();
+          }
+
+          if (record && payload) {
+            const newRefreshToken = await this.generateRefreshToken(
+              payload.sub,
+            );
+            const newAccessToken = await this.generateAccessToken(payload.sub);
+            await this.deleteRefreshToken(record.token);
+            res.cookie("refreshToken", newRefreshToken, {
+              maxAge: 1000 * 3600 * 24 * 30,
+            });
+            res.send({
+              accessToken: newAccessToken.token,
+              expiresAt: newAccessToken.expiresAt,
+              refreshToken: newRefreshToken,
+            });
+          }
+        } catch (e) {
           throw new UnauthorizedException();
         }
-
-        if (record && payload) {
-          const newRefreshToken = await this.generateRefreshToken(payload.sub);
-          const newAccessToken = await this.generateAccessToken(payload.sub);
-          await this.deleteRefreshToken(record.token);
-          res.cookie("refreshToken", newRefreshToken, {
-            maxAge: 6 * 30 * 24 * 60 * 60 * 1000,
-          });
-          res.send({
-            accessToken: newAccessToken.token,
-            expiresAt: newAccessToken.expiresAt,
-            refreshToken: newRefreshToken,
-          });
-        }
-      } catch (e) {
-        throw new UnauthorizedException();
       }
+    } catch (e) {
+      throw new UnauthorizedException();
     }
   }
 
