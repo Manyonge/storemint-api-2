@@ -213,7 +213,9 @@ export class AuthService {
       //record in database
       //hashToken
       const hashedToken = await this.usersService.hashPassword(token);
-      await this.prisma.refreshToken.create({ data: { token: hashedToken } });
+      await this.prisma.refreshToken.create({
+        data: { token: hashedToken, uid },
+      });
       return token;
     } catch (e) {
       if (e instanceof BadRequestException) {
