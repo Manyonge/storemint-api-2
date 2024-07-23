@@ -105,7 +105,8 @@ export class AuthService {
       const accessToken = await this.generateAccessToken(user.uid);
 
       return {
-        accessToken,
+        accessToken: accessToken.token,
+        expiresAt: accessToken.expiresAt,
         retailerId,
         user: {
           name: user.name,
@@ -174,7 +175,11 @@ export class AuthService {
 
       const accessToken = await this.generateAccessToken(user.uid);
 
-      return { accessToken, retailer: retailer };
+      return {
+        accessToken: accessToken.token,
+        expiresAt: accessToken.expiresAt,
+        retailer: retailer,
+      };
     } catch (e: any) {
       handleError(e);
     }
@@ -184,13 +189,11 @@ export class AuthService {
     try {
       const currentDate = new Date();
       const timestamp = currentDate.getTime();
-      const iat = Math.floor(timestamp / 1000);
-      const date = new Date(timestamp);
-      date.setMonth(date.getMonth() + 1);
-      const newTimestamp = date.getTime();
-      const exp = Math.floor(newTimestamp / 1000);
-      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1m" };
-      return await this.jwtService.signAsync(payload);
+      const iat = timestamp;
+      const exp = timestamp + 1000 * 3600; // 1 hour
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1H" };
+      const token = await this.jwtService.signAsync(payload);
+      return { token, expiresAt: exp };
     } catch (e) {
       if (e instanceof BadRequestException) {
         throw e;
@@ -203,11 +206,8 @@ export class AuthService {
     try {
       const currentDate = new Date();
       const timestamp = currentDate.getTime();
-      const iat = Math.floor(timestamp / 1000);
-      const date = new Date(timestamp);
-      date.setMonth(date.getMonth() + 1);
-      const newTimestamp = date.getTime();
-      const exp = Math.floor(newTimestamp / 1000);
+      const iat = timestamp;
+      const exp = timestamp + 1000 * 3600 * 24 * 30; // 1 month
       const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "30d" };
       const token = await this.jwtService.signAsync(payload);
       //record in database
@@ -277,7 +277,8 @@ export class AuthService {
             maxAge: 6 * 30 * 24 * 60 * 60 * 1000,
           });
           res.send({
-            accessToken: newAccessToken,
+            accessToken: newAccessToken.token,
+            expiresAt: newAccessToken.expiresAt,
             refreshToken: newRefreshToken,
           });
         }
