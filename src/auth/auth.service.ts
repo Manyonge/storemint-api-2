@@ -1,23 +1,18 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
+import {BadRequestException, Injectable, InternalServerErrorException, UnauthorizedException,} from "@nestjs/common";
+import {JwtService} from "@nestjs/jwt";
 import * as dotenv from "dotenv";
-import { Request, Response } from "express";
-import { PrismaService } from "nestjs-prisma";
-import { EwalletsService } from "../ewallets/ewallets.service";
-import { ImagesService } from "../images/images.service";
-import { RetailersService } from "../retailers/retailers.service";
-import { ProviderEnum, RoleEnum } from "../users/enums";
-import { UsersService } from "../users/users.service";
-import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
-import { LoginDto } from "./dto/login.dto";
-import { TokenEntity } from "./entities/token.entity";
-import { handleError } from "../helpers";
-import { CreateAuthEmailFilesDto } from "./dto/create-auth-email-files.dto";
+import {Request, Response} from "express";
+import {PrismaService} from "nestjs-prisma";
+import {EwalletsService} from "../ewallets/ewallets.service";
+import {ImagesService} from "../images/images.service";
+import {RetailersService} from "../retailers/retailers.service";
+import {ProviderEnum, RoleEnum} from "../users/enums";
+import {UsersService} from "../users/users.service";
+import {CreateAuthEmailDto} from "./dto/create-auth-email.dto";
+import {LoginDto} from "./dto/login.dto";
+import {TokenEntity} from "./entities/token.entity";
+import {handleError} from "../helpers";
+import {CreateAuthEmailFilesDto} from "./dto/create-auth-email-files.dto";
 
 dotenv.config();
 
@@ -34,7 +29,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto, res: Response) {
     try {
       //confirm such an email exists
       const email = await this.prisma.user.findFirst({
@@ -103,8 +98,19 @@ export class AuthService {
       }
 
       const accessToken = await this.generateAccessToken(user.uid);
+      const newRefreshToken = await this.generateRefreshToken(
+          user.uid,
+      );
 
-      return {
+      res.cookie("refreshToken", newRefreshToken.token, {
+        maxAge: 1000 * 3600 * 24 * 30,
+        httpOnly: true
+      });
+      res.cookie("refreshTokenId", newRefreshToken.tokenId, {
+        maxAge: 1000 * 3600 * 24 * 30,
+        httpOnly: true
+      });
+      res.send({
         accessToken: accessToken.token,
         expiresAt: accessToken.expiresAt,
         retailerId,
@@ -115,12 +121,11 @@ export class AuthService {
           email: user.email,
           role: user.role,
         },
-      };
+      });
     } catch (e) {
       if (e instanceof BadRequestException) {
         throw e;
       }
-      console.log(e);
       if (e instanceof BadRequestException) {
         throw e;
       }
@@ -213,10 +218,10 @@ export class AuthService {
       //record in database
       //hashToken
       const hashedToken = await this.usersService.hashPassword(token);
-      await this.prisma.refreshToken.create({
+      const newToken = await this.prisma.refreshToken.create({
         data: { token: hashedToken, uid },
       });
-      return token;
+      return {token, tokenId: newToken.id };
     } catch (e) {
       if (e instanceof BadRequestException) {
         throw e;
@@ -257,11 +262,25 @@ export class AuthService {
   async refreshToken(req: Request, res: Response) {
     try {
       const receivedRefreshToken = req.cookies["refreshToken"];
-      if (receivedRefreshToken) {
+      const receivedRefreshTokenId = req.cookies["refreshTokenId"];
+      if (receivedRefreshToken && receivedRefreshTokenId) {
         try {
           const payload =
             await this.jwtService.verifyAsync(receivedRefreshToken);
-          const record = await this.findRefreshToken(receivedRefreshToken);
+          const record = await this.prisma.refreshToken.findUnique({
+            where: {
+              id: parseInt(receivedRefreshTokenId)
+            }
+          })
+
+          if (record && payload) {
+          const isTokenCorrect = await this.usersService.comparePasswords(
+              receivedRefreshToken, record.token
+          )
+
+if(!isTokenCorrect){
+  throw new UnauthorizedException()
+}
 
           //check if token's expired
           const createAt = new Date(record.createdAt);
@@ -269,15 +288,23 @@ export class AuthService {
           if (now.getTime() - createAt.getTime() >= 1000 * 3600 * 24 * 30) {
             throw new UnauthorizedException();
           }
-
-          if (record && payload) {
+await this.prisma.refreshToken.delete({
+  where: {
+    id: parseInt(receivedRefreshTokenId)
+  }
+})
             const newRefreshToken = await this.generateRefreshToken(
               payload.sub,
             );
             const newAccessToken = await this.generateAccessToken(payload.sub);
             await this.deleteRefreshToken(record.token);
-            res.cookie("refreshToken", newRefreshToken, {
+            res.cookie("refreshToken", newRefreshToken.token, {
               maxAge: 1000 * 3600 * 24 * 30,
+              httpOnly: true
+            });
+            res.cookie("refreshTokenId", newRefreshToken.tokenId, {
+              maxAge: 1000 * 3600 * 24 * 30,
+              httpOnly: true
             });
             res.send({
               accessToken: newAccessToken.token,
@@ -285,9 +312,15 @@ export class AuthService {
               refreshToken: newRefreshToken,
             });
           }
+          else{
+            throw new UnauthorizedException()
+          }
         } catch (e) {
           throw new UnauthorizedException();
         }
+      }
+      else{
+        throw new UnauthorizedException()
       }
     } catch (e) {
       throw new UnauthorizedException();
