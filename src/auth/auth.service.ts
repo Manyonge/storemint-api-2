@@ -309,7 +309,6 @@ await this.prisma.refreshToken.delete({
             res.send({
               accessToken: newAccessToken.token,
               expiresAt: newAccessToken.expiresAt,
-              refreshToken: newRefreshToken,
             });
           }
           else{
