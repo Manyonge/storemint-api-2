@@ -10,18 +10,19 @@ generator client {
 }
 
 model User {
-  uid         Int       @id @default(autoincrement())
-  email       String
-  phoneNumber String?
-  name        String
-  hash        String?
-  isActivated   Boolean?
-  role        Role
-  provider    Provider
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime? @db.Timestamp(6)
-  retailer    Retailer?
+  uid          Int            @id @default(autoincrement())
+  email        String
+  phoneNumber  String?
+  name         String
+  hash         String?
+  isActivated  Boolean?
+  role         Role
+  provider     Provider
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  deletedAt    DateTime?      @db.Timestamp(6)
+  retailer     Retailer?
+  RefreshToken RefreshToken[]
 }
 
 enum Role {
@@ -84,7 +85,11 @@ model Ewallet {
 model RefreshToken {
   id        Int      @id @default(autoincrement())
   token     String
+  uid       Int
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [uid], references: [uid], onDelete: Cascade)
+
+  @@index([uid])
 }
 
 model StoreProduct {
