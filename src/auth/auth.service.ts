@@ -107,9 +107,11 @@ export class AuthService {
 
       res.cookie("refreshToken", newRefreshToken.token, {
         maxAge: 1000 * 3600 * 24 * 30,
+        httpOnly: true,
       });
       res.cookie("refreshTokenId", newRefreshToken.tokenId, {
         maxAge: 1000 * 3600 * 24 * 30,
+        httpOnly: true,
       });
       res.send({
         accessToken: accessToken.token,
@@ -306,9 +308,11 @@ export class AuthService {
             await this.deleteRefreshToken(record.token);
             res.cookie("refreshToken", newRefreshToken.token, {
               maxAge: 1000 * 3600 * 24 * 30,
+              httpOnly: true,
             });
             res.cookie("refreshTokenId", newRefreshToken.tokenId, {
               maxAge: 1000 * 3600 * 24 * 30,
+              httpOnly: true,
             });
             res.send({
               accessToken: newAccessToken.token,
