@@ -18,7 +18,6 @@ export class RetailersService {
   async findAll(queryParamDto: QueryParamDto) {
     try {
       const businessName = queryParamDto.businessName;
-      console.log({ businessName });
 
       if (businessName) {
         return await this.prisma.retailer.findFirst({

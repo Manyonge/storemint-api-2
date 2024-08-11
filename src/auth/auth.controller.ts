@@ -1,11 +1,21 @@
-import {Body, Controller, Get, Post, Req, Res, UploadedFiles, UseGuards, UseInterceptors,} from "@nestjs/common";
-import {FileFieldsInterceptor} from "@nestjs/platform-express";
-import {Request, Response} from "express";
-import {AuthService} from "./auth.service";
-import {CreateAuthEmailDto} from "./dto/create-auth-email.dto";
-import {LoginDto} from "./dto/login.dto";
-import {CreateAuthEmailFilesDto} from "./dto/create-auth-email-files.dto";
-import {AuthGuard} from "./auth.guard";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
+} from "@nestjs/common";
+import { FileFieldsInterceptor } from "@nestjs/platform-express";
+import { Request, Response } from "express";
+import { AuthService } from "./auth.service";
+import { CreateAuthEmailDto } from "./dto/create-auth-email.dto";
+import { LoginDto } from "./dto/login.dto";
+import { CreateAuthEmailFilesDto } from "./dto/create-auth-email-files.dto";
+import { AuthGuard } from "./auth.guard";
 
 @Controller("auth")
 export class AuthController {
