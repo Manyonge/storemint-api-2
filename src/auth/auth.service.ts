@@ -129,6 +129,7 @@ export class AuthService {
       if (e instanceof BadRequestException) {
         throw e;
       }
+      console.log(e);
       if (e instanceof BadRequestException) {
         throw e;
       }
