@@ -34,7 +34,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto, res: Response) {
     try {
       //confirm such an email exists
       const email = await this.prisma.user.findFirst({
@@ -103,9 +103,19 @@ export class AuthService {
       }
 
       const accessToken = await this.generateAccessToken(user.uid);
+      const newRefreshToken = await this.generateRefreshToken(user.uid);
 
-      return {
-        accessToken,
+      res.cookie("refreshToken", newRefreshToken.token, {
+        maxAge: 1000 * 3600 * 24 * 30,
+        httpOnly: true,
+      });
+      res.cookie("refreshTokenId", newRefreshToken.tokenId, {
+        maxAge: 1000 * 3600 * 24 * 30,
+        httpOnly: true,
+      });
+      res.send({
+        accessToken: accessToken.token,
+        expiresAt: accessToken.expiresAt,
         retailerId,
         user: {
           name: user.name,
@@ -114,7 +124,7 @@ export class AuthService {
           email: user.email,
           role: user.role,
         },
-      };
+      });
     } catch (e) {
       if (e instanceof BadRequestException) {
         throw e;
@@ -174,7 +184,11 @@ export class AuthService {
 
       const accessToken = await this.generateAccessToken(user.uid);
 
-      return { accessToken, retailer: retailer };
+      return {
+        accessToken: accessToken.token,
+        expiresAt: accessToken.expiresAt,
+        retailer: retailer,
+      };
     } catch (e: any) {
       handleError(e);
     }
@@ -184,13 +198,11 @@ export class AuthService {
     try {
       const currentDate = new Date();
       const timestamp = currentDate.getTime();
-      const iat = Math.floor(timestamp / 1000);
-      const date = new Date(timestamp);
-      date.setMonth(date.getMonth() + 1);
-      const newTimestamp = date.getTime();
-      const exp = Math.floor(newTimestamp / 1000);
-      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1M" };
-      return await this.jwtService.signAsync(payload);
+      const iat = timestamp;
+      const exp = timestamp + 1000 * 3600; // 1 hour
+      const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "1H" };
+      const token = await this.jwtService.signAsync(payload);
+      return { token, expiresAt: exp };
     } catch (e) {
       if (e instanceof BadRequestException) {
         throw e;
@@ -203,18 +215,17 @@ export class AuthService {
     try {
       const currentDate = new Date();
       const timestamp = currentDate.getTime();
-      const iat = Math.floor(timestamp / 1000);
-      const date = new Date(timestamp);
-      date.setMonth(date.getMonth() + 1);
-      const newTimestamp = date.getTime();
-      const exp = Math.floor(newTimestamp / 1000);
+      const iat = timestamp;
+      const exp = timestamp + 1000 * 3600 * 24 * 30; // 1 month
       const payload: TokenEntity = { sub: uid, iat, exp, expiresIn: "30d" };
       const token = await this.jwtService.signAsync(payload);
       //record in database
       //hashToken
       const hashedToken = await this.usersService.hashPassword(token);
-      await this.prisma.refreshToken.create({ data: { token: hashedToken } });
-      return token;
+      const newToken = await this.prisma.refreshToken.create({
+        data: { token: hashedToken, uid },
+      });
+      return { token, tokenId: newToken.id };
     } catch (e) {
       if (e instanceof BadRequestException) {
         throw e;
@@ -253,37 +264,69 @@ export class AuthService {
   }
 
   async refreshToken(req: Request, res: Response) {
-    const receivedRefreshToken = req.cookies["refreshToken"];
-    if (receivedRefreshToken) {
-      try {
-        const payload = await this.jwtService.verifyAsync(receivedRefreshToken);
-        const record = await this.findRefreshToken(receivedRefreshToken);
+    try {
+      const receivedRefreshToken = req.cookies["refreshToken"];
+      const receivedRefreshTokenId = req.cookies["refreshTokenId"];
+      if (receivedRefreshToken && receivedRefreshTokenId) {
+        try {
+          const payload =
+            await this.jwtService.verifyAsync(receivedRefreshToken);
+          const record = await this.prisma.refreshToken.findUnique({
+            where: {
+              id: parseInt(receivedRefreshTokenId),
+            },
+          });
 
-        //check if token's expired
-        const createAt = new Date(record.createdAt);
-        const now = new Date();
-        if (
-          now.getFullYear() > createAt.getFullYear() ||
-          now.getMonth() > createAt.getMonth()
-        ) {
+          if (record && payload) {
+            const isTokenCorrect = await this.usersService.comparePasswords(
+              receivedRefreshToken,
+              record.token,
+            );
+
+            if (!isTokenCorrect) {
+              throw new UnauthorizedException();
+            }
+
+            //check if token's expired
+            const createAt = new Date(record.createdAt);
+            const now = new Date();
+            if (now.getTime() - createAt.getTime() >= 1000 * 3600 * 24 * 30) {
+              throw new UnauthorizedException();
+            }
+            await this.prisma.refreshToken.delete({
+              where: {
+                id: parseInt(receivedRefreshTokenId),
+              },
+            });
+            const newRefreshToken = await this.generateRefreshToken(
+              payload.sub,
+            );
+            const newAccessToken = await this.generateAccessToken(payload.sub);
+            await this.deleteRefreshToken(record.token);
+            res.cookie("refreshToken", newRefreshToken.token, {
+              maxAge: 1000 * 3600 * 24 * 30,
+              httpOnly: true,
+            });
+            res.cookie("refreshTokenId", newRefreshToken.tokenId, {
+              maxAge: 1000 * 3600 * 24 * 30,
+              httpOnly: true,
+            });
+            res.send({
+              accessToken: newAccessToken.token,
+              expiresAt: newAccessToken.expiresAt,
+            });
+          } else {
+            throw new UnauthorizedException();
+          }
+        } catch (e) {
           throw new UnauthorizedException();
         }
-
-        if (record && payload) {
-          const newRefreshToken = await this.generateRefreshToken(payload.sub);
-          const newAccessToken = await this.generateAccessToken(payload.sub);
-          await this.deleteRefreshToken(record.token);
-          res.cookie("refreshToken", newRefreshToken, {
-            maxAge: 6 * 30 * 24 * 60 * 60 * 1000,
-          });
-          res.send({
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken,
-          });
-        }
-      } catch (e) {
+      } else {
+        console.log("cookies not found");
         throw new UnauthorizedException();
       }
+    } catch (e) {
+      throw new UnauthorizedException();
     }
   }
 
