@@ -267,10 +267,6 @@ export class AuthService {
       const receivedRefreshToken = req.cookies["refreshToken"];
       const receivedRefreshTokenId = req.cookies["refreshTokenId"];
       if (receivedRefreshToken && receivedRefreshTokenId) {
-        console.log({
-          receivedRefreshToken,
-          receivedRefreshTokenId,
-        });
         try {
           const payload =
             await this.jwtService.verifyAsync(receivedRefreshToken);
@@ -325,7 +321,7 @@ export class AuthService {
           throw new UnauthorizedException();
         }
       } else {
-        console.log("cookies not found", { req });
+        console.log("cookies not found");
         throw new UnauthorizedException();
       }
     } catch (e) {
