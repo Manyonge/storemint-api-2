@@ -52,7 +52,12 @@ export class ProductsController {
     @Query(new ValidationPipe()) queryParams: QueryParamDto,
     @Req() req: Request,
   ) {
-    return this.productsService.findAll(+queryParams.retailerId, req);
+    return this.productsService.findAll(
+      +queryParams.retailerId,
+      req,
+      +queryParams?.page,
+      +queryParams?.limit,
+    );
   }
 
   @Get(":id")

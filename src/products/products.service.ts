@@ -31,15 +31,40 @@ export class ProductsService {
     }
   }
 
-  async findAll(retailerId: number, request: Request) {
+  async findAll(
+    retailerId: number,
+    request: Request,
+    page?: number,
+    limit?: number,
+  ) {
     try {
       if (request.query.inStock && +request.query.inStock === 1) {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: { retailerId, deletedAt: null, stock: { gt: 0 } },
+          });
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: { retailerId, deletedAt: null, stock: { gt: 0 } },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
           include: { images: true },
           where: { retailerId, deletedAt: null, stock: { gt: 0 } },
         });
       }
+
       if (request.query.inStock && +request.query.inStock === 0) {
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
