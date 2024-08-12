@@ -31,31 +31,168 @@ export class ProductsService {
     }
   }
 
-  async findAll(retailerId: number, request: Request) {
+  async findAll(
+    retailerId: number,
+    request: Request,
+    page?: number,
+    limit?: number,
+  ) {
     try {
       if (request.query.inStock && +request.query.inStock === 1) {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: { retailerId, deletedAt: null, stock: { gt: 0 } },
+          });
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: { retailerId, deletedAt: null, stock: { gt: 0 } },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: { retailerId, deletedAt: null, stock: { gt: 0 } },
         });
       }
+
       if (request.query.inStock && +request.query.inStock === 0) {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: { retailerId, deletedAt: null, stock: 0 },
+          });
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: { retailerId, deletedAt: null, stock: 0 },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: { retailerId, deletedAt: null, stock: 0 },
         });
       }
 
       if (request.query.isHidden && +request.query.isHidden === 1) {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: { retailerId, deletedAt: null, isHidden: true },
+          });
+
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: { retailerId, deletedAt: null, isHidden: true },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: { retailerId, deletedAt: null, isHidden: true },
         });
       }
 
-      if (request.query.category) {
+      if (request.query.category && request.query.size) {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: {
+              retailerId,
+              deletedAt: null,
+              category: request.query.category as string,
+              size: request.query.size as string,
+            },
+          });
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: {
+              retailerId,
+              deletedAt: null,
+              category: request.query.category as string,
+              size: request.query.size as string,
+            },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
+          where: {
+            retailerId,
+            deletedAt: null,
+            category: request.query.category as string,
+            size: request.query.size as string,
+          },
+        });
+      }
+
+      if (request.query.category) {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: {
+              retailerId,
+              deletedAt: null,
+              category: request.query.category as string,
+            },
+          });
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: {
+              retailerId,
+              deletedAt: null,
+              category: request.query.category as string,
+            },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: {
             retailerId,
             deletedAt: null,
@@ -65,28 +202,65 @@ export class ProductsService {
       }
 
       if (request.query.size) {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: {
+              retailerId,
+              deletedAt: null,
+              size: request.query.size as string,
+            },
+          });
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: {
+              retailerId,
+              deletedAt: null,
+              size: request.query.size as string,
+            },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: {
             retailerId,
             deletedAt: null,
             size: request.query.size as string,
           },
         });
-      }
-
-      if (request.query.condition) {
-        return await this.prisma.storeProduct.findMany({
-          orderBy: { createdAt: "desc" },
-          where: {
-            retailerId,
-            deletedAt: null,
-            condition: request.query.condition as string,
-          },
-        });
       } else {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: { retailerId, deletedAt: null },
+          });
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: { retailerId, deletedAt: null },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: { retailerId, deletedAt: null },
         });
       }
@@ -103,6 +277,9 @@ export class ProductsService {
     try {
       return await this.prisma.storeProduct.findUnique({
         where: { id, deletedAt: null },
+        include: {
+          images: true,
+        },
       });
     } catch (e) {
       console.log(e);
