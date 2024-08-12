@@ -120,6 +120,48 @@ export class ProductsService {
         });
       }
 
+      if (request.query.category && request.query.size) {
+        if (page >= 0 && limit >= 0) {
+          const totalCount = await this.prisma.storeProduct.count({
+            where: {
+              retailerId,
+              deletedAt: null,
+              category: request.query.category as string,
+              size: request.query.size as string,
+            },
+          });
+          const data = await this.prisma.storeProduct.findMany({
+            orderBy: { createdAt: "desc" },
+            include: { images: true },
+            where: {
+              retailerId,
+              deletedAt: null,
+              category: request.query.category as string,
+              size: request.query.size as string,
+            },
+            skip: page * limit,
+            take: limit,
+          });
+          return {
+            data,
+            pageNumber: page,
+            pageSize: limit,
+            totalCount,
+          };
+        }
+
+        return await this.prisma.storeProduct.findMany({
+          orderBy: { createdAt: "desc" },
+          include: { images: true },
+          where: {
+            retailerId,
+            deletedAt: null,
+            category: request.query.category as string,
+            size: request.query.size as string,
+          },
+        });
+      }
+
       if (request.query.category) {
         if (page >= 0 && limit >= 0) {
           const totalCount = await this.prisma.storeProduct.count({
