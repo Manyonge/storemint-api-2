@@ -103,6 +103,9 @@ export class ProductsService {
     try {
       return await this.prisma.storeProduct.findUnique({
         where: { id, deletedAt: null },
+        include: {
+          images: true,
+        },
       });
     } catch (e) {
       console.log(e);
