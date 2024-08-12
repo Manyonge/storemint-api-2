@@ -36,12 +36,14 @@ export class ProductsService {
       if (request.query.inStock && +request.query.inStock === 1) {
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: { retailerId, deletedAt: null, stock: { gt: 0 } },
         });
       }
       if (request.query.inStock && +request.query.inStock === 0) {
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: { retailerId, deletedAt: null, stock: 0 },
         });
       }
@@ -49,6 +51,7 @@ export class ProductsService {
       if (request.query.isHidden && +request.query.isHidden === 1) {
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: { retailerId, deletedAt: null, isHidden: true },
         });
       }
@@ -56,6 +59,7 @@ export class ProductsService {
       if (request.query.category) {
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: {
             retailerId,
             deletedAt: null,
@@ -67,6 +71,7 @@ export class ProductsService {
       if (request.query.size) {
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: {
             retailerId,
             deletedAt: null,
@@ -78,6 +83,7 @@ export class ProductsService {
       if (request.query.condition) {
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: {
             retailerId,
             deletedAt: null,
@@ -87,6 +93,7 @@ export class ProductsService {
       } else {
         return await this.prisma.storeProduct.findMany({
           orderBy: { createdAt: "desc" },
+          include: { images: true },
           where: { retailerId, deletedAt: null },
         });
       }
